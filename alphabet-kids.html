@@ -19,6 +19,20 @@ body {
 }
 .screen.hidden { opacity: 0; pointer-events: none; transform: scale(.97); }
 
+/* Mobile-first responsive adjustments */
+@media (max-width: 640px) {
+  .letter-huge { font-size: clamp(72px, 26vw, 160px) !important; }
+  .emoji-huge  { font-size: clamp(58px, 18vw, 120px) !important; }
+  .btn { min-width: 44px; min-height: 44px; }
+  #btn-prev, #btn-next { width: 54px !important; height: 54px !important; font-size: 22px !important; }
+  .letter-card { border-radius: 12px; }
+}
+@media (max-width: 380px) {
+  .letter-huge { font-size: clamp(64px, 24vw, 140px) !important; }
+  .emoji-huge  { font-size: clamp(50px, 16vw, 100px) !important; }
+  #btn-prev, #btn-next { width: 48px !important; height: 48px !important; font-size: 20px !important; }
+}
+
 @keyframes float      { 0%,100%{transform:translateY(0)rotate(-3deg)}50%{transform:translateY(-18px)rotate(3deg)} }
 @keyframes float2     { 0%,100%{transform:translateY(0)rotate(2deg)}50%{transform:translateY(-14px)rotate(-2deg)} }
 @keyframes float3     { 0%,100%{transform:translateY(0)rotate(-1deg)}50%{transform:translateY(-10px)rotate(1deg)} }
@@ -420,7 +434,7 @@ const ENG = [
   {letter:'L',word:'Lion',     thaiWord:'สิงโต',       emoji:'🦁', reading:'L ไลอ้อน สิงโต'},
   {letter:'M',word:'Man',      thaiWord:'ผู้ชาย',      emoji:'🧑', reading:'M แมน ผู้ชาย'},
   {letter:'N',word:'Nurse',    thaiWord:'พยาบาล',      emoji:'👩‍⚕️', reading:'N เนิร์ส พยาบาล'},
-  {letter:'O',word:'Ox',       thaiWord:'วัว',         emoji:'🐂', reading:'O อ็อกซ์ วัว'},
+  {letter:'O',word:'Ox',       thaiWord:'วัว',         emoji:'🐂', reading:'O อ็อกซ์ วัวตัวผู้'},
   {letter:'P',word:'Pig',      thaiWord:'หมู',         emoji:'🐖', reading:'P พิก หมู'},
   {letter:'Q',word:'Queen',    thaiWord:'พระราชินี',   emoji:'👸', reading:'Q ควีน พระราชินี'},
   {letter:'R',word:'Rabbit',   thaiWord:'กระต่าย',     emoji:'🐇', reading:'R แรบบิท กระต่าย'},
@@ -783,22 +797,34 @@ function speak(text, lang) {
 }
 
 /*
-  speakItem — chain เสียงด้วย onend (ไม่ใช้ setTimeout)
+  speakItem — chain เสียงด้วย onend รองรับ callback เมื่ออ่านจบทั้งหมด
     ภาษาไทย  : ชื่อพยัญชนะ (th) → คำ (th)
     ภาษาอังกฤษ: ตัวอักษร (en) → คำ (en) → ความหมายไทย (th)
 */
-function speakItem(item) {
-  if (!window.speechSynthesis) return;
+function speakItem(item, onComplete) {
+  if (!window.speechSynthesis) { if (onComplete) onComplete(); return; }
   window.speechSynthesis.cancel();
   const lang = getLang(item.letter);
   if (lang === 'th-TH') {
+    // ไทย: 2 ขั้น
     _speakOne(item.name || item.letter, 'th-TH', () => {
-      setTimeout(() => _speakOne(item.word, 'th-TH', null), 200);
+      setTimeout(() => _speakOne(item.word, 'th-TH', () => {
+        // รอ 300ms หลังพูดจบเพื่อให้มีช่วงเงียบ
+        if (onComplete) setTimeout(onComplete, 300);
+      }), 200);
     });
   } else {
+    // อังกฤษ: 3 ขั้น
     _speakOne(item.letter, 'en-US', () => {
       setTimeout(() => _speakOne(item.word, 'en-US', () => {
-        if (item.thaiWord) setTimeout(() => _speakOne(item.thaiWord, 'th-TH', null), 150);
+        if (item.thaiWord) {
+          setTimeout(() => _speakOne(item.thaiWord, 'th-TH', () => {
+            // รอ 400ms หลังพูดจบ (อังกฤษยาวกว่า)
+            if (onComplete) setTimeout(onComplete, 400);
+          }), 150);
+        } else {
+          if (onComplete) setTimeout(onComplete, 300);
+        }
       }), 150);
     });
   }
@@ -912,7 +938,15 @@ function renderLearnCard(skipSpeak = false) {
   playSFX('letter');
 
   if (!skipSpeak) setTimeout(() => {
-    speakItem(item);
+    speakItem(item, () => {
+      // หลังอ่านจบ ถ้าเปิด auto-play ให้ไปตัวถัดไปอัตโนมัติ
+      if (app.autoPlay && app.idx < app.data.length - 1) {
+        setTimeout(() => nextLetter(), 800);
+      } else if (app.autoPlay && app.idx === app.data.length - 1) {
+        stopAutoPlay();
+        celebrateAllDone();
+      }
+    });
     spawnNotes(window.innerWidth*.5, window.innerHeight*.4, 4);
   }, 380);
 }
@@ -934,7 +968,7 @@ function renderDots() {
 function onLetterTap() {
   resumeAC();
   const item = app.data[app.idx];
-  speakItem(item);
+  speakItem(item, null); // ไม่ต้องการ callback เมื่อแท็ปเอง
   playSFX('letter');
   spawnNotes(window.innerWidth*.5, window.innerHeight*.4, 5);
   addStar(1);
@@ -972,14 +1006,12 @@ function startAutoPlay() {
   const btn = document.getElementById('autoplay-btn');
   btn.textContent = '⏸️ หยุด';
   btn.style.background = 'rgba(255,220,0,.4)';
-  app.apTimer = setInterval(() => {
-    if (app.idx < app.data.length - 1) nextLetter();
-    else { stopAutoPlay(); celebrateAllDone(); }
-  }, 3800);
+  // ไม่ใช้ setInterval อีกต่อไป ให้ TTS callback จัดการ timing เอง
+  // การเล่นต่อจะถูกควบคุมใน renderLearnCard → speakItem callback
 }
 function stopAutoPlay() {
   app.autoPlay = false;
-  clearInterval(app.apTimer); app.apTimer = null;
+  if (app.apTimer) { clearInterval(app.apTimer); app.apTimer = null; }
   const btn = document.getElementById('autoplay-btn');
   if (btn) { btn.textContent = '▶️ Auto'; btn.style.background = 'rgba(255,255,255,.2)'; }
 }

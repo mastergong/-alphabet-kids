@@ -711,123 +711,147 @@ function spawnNotes(x, y, count = 3) {
   }
 }
 
-/* ──────────────────────────────────────────────
-   TTS
-────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════
+   AUDIO SYSTEM — Google Cloud TTS (Pre-generated)
+══════════════════════════════════════════════ */
+const audioCache = new Map();
+let audioContext = null;
+
+function initAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+}
+
+/* Load and cache audio file */
+async function loadAudio(url) {
+  if (audioCache.has(url)) return audioCache.get(url);
+  
+  try {
+    const audio = new Audio(url);
+    audio.preload = 'auto';
+    await new Promise((resolve, reject) => {
+      audio.oncanplaythrough = resolve;
+      audio.onerror = reject;
+      audio.load();
+    });
+    audioCache.set(url, audio);
+    return audio;
+  } catch (err) {
+    console.warn('⚠️ Failed to load audio:', url, err);
+    return null;
+  }
+}
+
+/* Play audio with callback */
+function playAudio(url, onComplete) {
+  initAudioContext();
+  const audio = audioCache.get(url);
+  if (!audio) {
+    console.warn('⚠️ Audio not loaded:', url);
+    if (onComplete) setTimeout(onComplete, 500);
+    return;
+  }
+  
+  audio.currentTime = 0;
+  audio.volume = 1.0;
+  
+  const handleEnded = () => {
+    audio.removeEventListener('ended', handleEnded);
+    if (onComplete) setTimeout(onComplete, 200);
+  };
+  
+  audio.addEventListener('ended', handleEnded);
+  audio.play().catch(err => {
+    console.warn('⚠️ Audio playback failed:', err);
+    audio.removeEventListener('ended', handleEnded);
+    if (onComplete) setTimeout(onComplete, 500);
+  });
+}
+
+/* Get audio file path for item */
+function getAudioPath(item, type) {
+  const lang = /^[A-Za-z]$/.test(item.letter) ? 'english' : 'thai';
+  
+  if (lang === 'thai') {
+    const code = item.letter.charCodeAt(0).toString(16);
+    return `audio/thai/${code}_${type}.mp3`; // type: 'name' หรือ 'word'
+  } else {
+    const code = item.letter.toLowerCase();
+    return `audio/english/${code}_${type}.mp3`; // type: 'letter', 'word', 'thai'
+  }
+}
+
+/*
+  speakItem — เล่นเสียงจาก Google Cloud TTS files
+    ภาษาไทย:  name.mp3 → word.mp3
+    ภาษาอังกฤษ: letter.mp3 → word.mp3 → thai.mp3
+*/
+function speakItem(item, onComplete) {
+  initAudioContext();
+  const lang = /^[A-Za-z]$/.test(item.letter) ? 'english' : 'thai';
+  
+  if (lang === 'thai') {
+    // เล่น: ชื่อพยัญชนะ → คำ
+    const namePath = getAudioPath(item, 'name');
+    const wordPath = getAudioPath(item, 'word');
+    
+    playAudio(namePath, () => {
+      setTimeout(() => {
+        playAudio(wordPath, () => {
+          if (onComplete) setTimeout(onComplete, 300);
+        });
+      }, 150);
+    });
+  } else {
+    // เล่น: ตัวอักษร → คำอังกฤษ → คำไทย
+    const letterPath = getAudioPath(item, 'letter');
+    const wordPath = getAudioPath(item, 'word');
+    const thaiPath = getAudioPath(item, 'thai');
+    
+    playAudio(letterPath, () => {
+      setTimeout(() => {
+        playAudio(wordPath, () => {
+          setTimeout(() => {
+            playAudio(thaiPath, () => {
+              if (onComplete) setTimeout(onComplete, 400);
+            });
+          }, 100);
+        });
+      }, 100);
+    });
+  }
+}
+
+/* Preload all audio files for current mode */
+async function preloadAudio() {
+  console.log('🎵 Preloading audio files...');
+  const promises = [];
+  
+  for (const item of app.data) {
+    const lang = /^[A-Za-z]$/.test(item.letter) ? 'english' : 'thai';
+    
+    if (lang === 'thai') {
+      promises.push(loadAudio(getAudioPath(item, 'name')));
+      promises.push(loadAudio(getAudioPath(item, 'word')));
+    } else {
+      promises.push(loadAudio(getAudioPath(item, 'letter')));
+      promises.push(loadAudio(getAudioPath(item, 'word')));
+      promises.push(loadAudio(getAudioPath(item, 'thai')));
+    }
+  }
+  
+  await Promise.all(promises);
+  console.log('✅ Audio preloaded:', audioCache.size, 'files');
+}
+
 function getLang(letter) {
   if (app.mode === 'english') return 'en-US';
   if (app.mode === 'thai')    return 'th-TH';
   return /^[A-Za-z]$/.test(letter) ? 'en-US' : 'th-TH';
-}
-
-/* ── TTS voice cache ── */
-let _ttsVoices = [];
-let _voicesLoaded = false;
-
-function _loadVoices() { 
-  _ttsVoices = window.speechSynthesis.getVoices();
-  if (_ttsVoices.length > 0) {
-    _voicesLoaded = true;
-    console.log('🎤 Voices loaded:', _ttsVoices.length, 'voices');
-    console.log('Available Thai voices:', _ttsVoices.filter(v => v.lang.startsWith('th')).map(v => v.name));
-  }
-}
-
-if (window.speechSynthesis) {
-  // Initial load
-  _loadVoices();
-  // Listen for voices becoming available
-  window.speechSynthesis.onvoiceschanged = _loadVoices;
-  // Force load after delay (Chrome workaround)
-  setTimeout(_loadVoices, 100);
-}
-
-/* หา Thai voice ด้วยหลายวิธี */
-function _findThaiVoice() {
-  // Refresh voices if empty
-  if (_ttsVoices.length === 0) {
-    _ttsVoices = window.speechSynthesis.getVoices();
-  }
-  
-  return _ttsVoices.find(v => v.lang === 'th-TH')
-      || _ttsVoices.find(v => v.lang === 'th')
-      || _ttsVoices.find(v => v.name.toLowerCase().includes('thai'))
-      || _ttsVoices.find(v => v.name.includes('ไทย'))
-      || _ttsVoices.find(v => v.lang.startsWith('th'));
-}
-
-/* พูดข้อความเดียว แล้วเรียก onDone เมื่อพูดจบ */
-function _speakOne(text, lang, onDone) {
-  if (!window.speechSynthesis) { if (onDone) onDone(); return; }
-  
-  // Refresh voices ถ้ายังว่าง
-  if (_ttsVoices.length === 0) {
-    _ttsVoices = window.speechSynthesis.getVoices();
-  }
-  
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang;
-  u.rate = 0.75;
-  u.pitch = 1.1;
-  u.volume = 1;
-  
-  // เลือก voice ตามภาษา
-  let voice = null;
-  if (lang === 'th-TH' || lang === 'th') {
-    voice = _findThaiVoice();
-    if (!voice) {
-      console.warn('⚠️ No Thai voice installed. Install Thai language in Windows Settings → Time & Language → Speech');
-      console.log('Will use default voice. Available voices:', _ttsVoices.length);
-    }
-  } else {
-    voice = _ttsVoices.find(v => v.lang === lang)
-         || _ttsVoices.find(v => v.lang.startsWith(lang.split('-')[0]));
-  }
-  
-  if (voice) u.voice = voice;
-  if (onDone) u.onend = onDone;
-  window.speechSynthesis.speak(u);
-}
-
-/* speak เดี่ยว (cancel ก่อนแล้วพูด) — ใช้ภายใน */
-function speak(text, lang) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  _speakOne(text, lang || 'th-TH', null);
-}
-
-/*
-  speakItem — chain เสียงด้วย onend รองรับ callback เมื่ออ่านจบทั้งหมด
-    ภาษาไทย  : ชื่อพยัญชนะ (th) → คำ (th)
-    ภาษาอังกฤษ: ตัวอักษร (en) → คำ (en) → ความหมายไทย (th)
-*/
-function speakItem(item, onComplete) {
-  if (!window.speechSynthesis) { if (onComplete) onComplete(); return; }
-  window.speechSynthesis.cancel();
-  const lang = getLang(item.letter);
-  if (lang === 'th-TH') {
-    // ไทย: 2 ขั้น
-    _speakOne(item.name || item.letter, 'th-TH', () => {
-      setTimeout(() => _speakOne(item.word, 'th-TH', () => {
-        // รอ 300ms หลังพูดจบเพื่อให้มีช่วงเงียบ
-        if (onComplete) setTimeout(onComplete, 300);
-      }), 200);
-    });
-  } else {
-    // อังกฤษ: 3 ขั้น
-    _speakOne(item.letter, 'en-US', () => {
-      setTimeout(() => _speakOne(item.word, 'en-US', () => {
-        if (item.thaiWord) {
-          setTimeout(() => _speakOne(item.thaiWord, 'th-TH', () => {
-            // รอ 400ms หลังพูดจบ (อังกฤษยาวกว่า)
-            if (onComplete) setTimeout(onComplete, 400);
-          }), 150);
-        } else {
-          if (onComplete) setTimeout(onComplete, 300);
-        }
-      }), 150);
-    });
-  }
 }
 
 /* ──────────────────────────────────────────────
@@ -863,6 +887,8 @@ function startMode(mode) {
   buildGrid();
   showScreen('screen-grid');
   if (!bgmSeqTimer && bgmOn) startBGMSeq();
+  // Preload audio files for selected mode
+  preloadAudio().catch(err => console.warn('⚠️ Audio preload failed:', err));
 }
 
 /* ──────────────────────────────────────────────

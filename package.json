@@ -1,0 +1,15 @@
+{
+  "name": "alphabet-kids-audio-generator",
+  "version": "1.0.0",
+  "description": "Generate audio files for Thai-English alphabet learning app using Google Cloud TTS",
+  "main": "generate-audio.js",
+  "scripts": {
+    "generate": "node generate-audio.js"
+  },
+  "dependencies": {
+    "@google-cloud/text-to-speech": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

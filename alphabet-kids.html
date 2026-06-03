@@ -708,17 +708,33 @@ function getLang(letter) {
 
 /* ── TTS voice cache ── */
 let _ttsVoices = [];
+let _voicesLoaded = false;
+
 function _loadVoices() { 
   _ttsVoices = window.speechSynthesis.getVoices();
-  console.log('🎤 Available voices:', _ttsVoices.map(v => `${v.name} (${v.lang})`));
+  if (_ttsVoices.length > 0) {
+    _voicesLoaded = true;
+    console.log('🎤 Voices loaded:', _ttsVoices.length, 'voices');
+    console.log('Available Thai voices:', _ttsVoices.filter(v => v.lang.startsWith('th')).map(v => v.name));
+  }
 }
+
 if (window.speechSynthesis) {
+  // Initial load
   _loadVoices();
+  // Listen for voices becoming available
   window.speechSynthesis.onvoiceschanged = _loadVoices;
+  // Force load after delay (Chrome workaround)
+  setTimeout(_loadVoices, 100);
 }
 
 /* หา Thai voice ด้วยหลายวิธี */
 function _findThaiVoice() {
+  // Refresh voices if empty
+  if (_ttsVoices.length === 0) {
+    _ttsVoices = window.speechSynthesis.getVoices();
+  }
+  
   return _ttsVoices.find(v => v.lang === 'th-TH')
       || _ttsVoices.find(v => v.lang === 'th')
       || _ttsVoices.find(v => v.name.toLowerCase().includes('thai'))
@@ -729,6 +745,12 @@ function _findThaiVoice() {
 /* พูดข้อความเดียว แล้วเรียก onDone เมื่อพูดจบ */
 function _speakOne(text, lang, onDone) {
   if (!window.speechSynthesis) { if (onDone) onDone(); return; }
+  
+  // Refresh voices ถ้ายังว่าง
+  if (_ttsVoices.length === 0) {
+    _ttsVoices = window.speechSynthesis.getVoices();
+  }
+  
   const u = new SpeechSynthesisUtterance(text);
   u.lang = lang;
   u.rate = 0.75;
@@ -739,10 +761,9 @@ function _speakOne(text, lang, onDone) {
   let voice = null;
   if (lang === 'th-TH' || lang === 'th') {
     voice = _findThaiVoice();
-    if (voice) {
-      console.log('✅ Using Thai voice:', voice.name, voice.lang);
-    } else {
-      console.warn('⚠️ No Thai voice found! Available:', _ttsVoices.map(v => v.lang).join(', '));
+    if (!voice) {
+      console.warn('⚠️ No Thai voice installed. Install Thai language in Windows Settings → Time & Language → Speech');
+      console.log('Will use default voice. Available voices:', _ttsVoices.length);
     }
   } else {
     voice = _ttsVoices.find(v => v.lang === lang)

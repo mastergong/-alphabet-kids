@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
 <title>English Alphabet A-Z Learning</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;700;800&family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
@@ -84,6 +84,12 @@ body {
 .letter-card:active { transform:scale(0.88); }
 
 .letter-huge { font-size:clamp(88px,30vw,210px); font-weight:900; line-height:1; text-shadow:4px 4px 0 rgba(0,0,0,.18); }
+.letter-pair { display:flex; align-items:center; justify-content:center; gap:clamp(12px,4vw,28px);
+  font-family:'Libre Baskerville','Georgia','Times New Roman',serif; font-weight:700;
+  color:#fff; text-shadow:4px 4px 0 rgba(0,0,0,.18); line-height:1; cursor:pointer; }
+.letter-pair .lp-upper { font-size:clamp(80px,26vw,180px); }
+.letter-pair .lp-sep   { font-size:clamp(40px,12vw,80px); opacity:.5; font-weight:400; }
+.letter-pair .lp-lower { font-size:clamp(68px,22vw,155px); opacity:.88; }
 .emoji-huge  { font-size:clamp(68px,20vw,155px); line-height:1; filter:drop-shadow(3px 4px 8px rgba(0,0,0,.22)); }
 
 .btn { transition:transform .13s; cursor:pointer; user-select:none; }
@@ -223,8 +229,11 @@ body {
   <div class="flex-1 flex flex-col items-center justify-center"
        style="position:relative;z-index:3;padding:8px 20px;">
     <p id="learn-counter" style="color:rgba(255,255,255,.65);font-size:clamp(12px,3.5vw,16px);margin-bottom:6px;font-weight:700;"></p>
-    <div id="learn-letter" class="letter-huge"
-         style="color:#fff;cursor:pointer;text-align:center;user-select:none;" onclick="onLetterTap()"></div>
+    <div id="learn-letter" class="letter-pair" onclick="onLetterTap()">
+      <span id="learn-letter-upper" class="lp-upper"></span>
+      <span class="lp-sep">/</span>
+      <span id="learn-letter-lower" class="lp-lower"></span>
+    </div>
     <div id="learn-emoji" class="emoji-huge float"
          style="cursor:pointer;text-align:center;margin:8px 0;user-select:none;" onclick="onLetterTap()"></div>
     <div id="learn-word"
@@ -958,7 +967,8 @@ function renderLearnCard(skipSpeak = false) {
   lEl.style.animation = 'bounce-in .55s cubic-bezier(.36,.07,.19,.97) both';
   eEl.style.animation = 'float 3.2s ease-in-out infinite, slide-up .4s ease-out both';
 
-  lEl.textContent = item.letter;
+  document.getElementById('learn-letter-upper').textContent = item.letter.toUpperCase();
+  document.getElementById('learn-letter-lower').textContent = item.letter.toLowerCase();
   eEl.textContent = item.emoji;
   document.getElementById('learn-word').textContent    = item.word;
   document.getElementById('learn-counter').textContent =

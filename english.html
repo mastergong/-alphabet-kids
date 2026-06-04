@@ -923,7 +923,21 @@ function showScreen(id) {
   // Check if screen is actually visible
   const targetScreen = document.getElementById(id);
   console.log(`Target screen ${id} has hidden class:`, targetScreen.classList.contains('hidden'));
-  console.log(`Target screen ${id} computed display:`, window.getComputedStyle(targetScreen).display);
+  const computed = window.getComputedStyle(targetScreen);
+  console.log(`Target screen ${id} computed display:`, computed.display);
+  console.log(`Target screen ${id} computed pointer-events:`, computed.pointerEvents);
+  console.log(`Target screen ${id} computed z-index:`, computed.zIndex);
+  console.log(`Target screen ${id} computed opacity:`, computed.opacity);
+  
+  // Check grid container
+  if (id === 'screen-grid') {
+    const grid = document.getElementById('letters-grid');
+    if (grid) {
+      const gridComputed = window.getComputedStyle(grid);
+      console.log('Grid container computed pointer-events:', gridComputed.pointerEvents);
+      console.log('Grid container children count:', grid.children.length);
+    }
+  }
 }
 
 function goHome() {

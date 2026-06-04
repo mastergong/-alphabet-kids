@@ -1036,8 +1036,18 @@ function startAutoPlay() {
   btn.textContent = '⏸️ หยุด';
   btn.style.background = 'rgba(255,220,0,.45)';
   btn.style.border = '2px solid rgba(255,220,0,.75)';
-  // ไม่ใช้ setInterval อีกต่อไป ให้ TTS callback จัดการ timing เอง
-  // การเล่นต่อจะถูกควบคุมใน renderLearnCard → speakItem callback
+  // ถ้าไม่มีเสียงเล่นอยู่ (กด Auto หลังเสียงหมดแล้ว) ให้เริ่ม chain ใหม่ทันที
+  if (_currentAudios.length === 0) {
+    const item = app.data[app.idx];
+    speakItem(item, () => {
+      if (app.autoPlay && app.idx < app.data.length - 1) {
+        setTimeout(() => { stopAllAudio(); nextLetter(false); }, 800);
+      } else if (app.autoPlay && app.idx === app.data.length - 1) {
+        stopAutoPlay();
+        celebrateAllDone();
+      }
+    });
+  }
 }
 function stopAutoPlay() {
   app.autoPlay = false;

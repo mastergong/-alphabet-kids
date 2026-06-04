@@ -747,37 +747,50 @@ async function loadAudio(url) {
 }
 
 /* Play audio with callback */
+let _currentAudios = []; // track all currently playing audio instances
+
 function playAudio(url, onComplete) {
   initAudioContext();
-  const audio = audioCache.get(url);
-  if (!audio) {
+  const cached = audioCache.get(url);
+  if (!cached) {
     console.warn('⚠️ Audio not loaded:', url);
     if (onComplete) setTimeout(onComplete, 500);
     return;
   }
-  
-  audio.currentTime = 0;
+
+  // Clone to avoid event/state collisions when replaying same file
+  const audio = cached.cloneNode();
   audio.volume = 1.0;
-  
-  const handleEnded = () => {
-    audio.removeEventListener('ended', handleEnded);
-    if (onComplete) setTimeout(onComplete, 200);
+  _currentAudios.push(audio);
+
+  const cleanup = () => {
+    audio.removeEventListener('ended', onEnded);
+    audio.removeEventListener('error', onError);
+    const idx = _currentAudios.indexOf(audio);
+    if (idx !== -1) _currentAudios.splice(idx, 1);
   };
-  
-  audio.addEventListener('ended', handleEnded);
+
+  const onEnded = () => { cleanup(); if (onComplete) onComplete(); };
+  const onError = () => { cleanup(); if (onComplete) setTimeout(onComplete, 300); };
+
+  audio.addEventListener('ended', onEnded);
+  audio.addEventListener('error', onError);
+
   audio.play().catch(err => {
     console.warn('⚠️ Audio playback failed:', err);
-    audio.removeEventListener('ended', handleEnded);
+    cleanup();
     if (onComplete) setTimeout(onComplete, 500);
   });
 }
 
 /* Stop all playing audio */
 function stopAllAudio() {
+  _currentAudios.forEach(a => { try { a.pause(); } catch(e){} });
+  _currentAudios = [];
+  // also stop cached audio (for safety)
   audioCache.forEach(audio => {
     if (audio && !audio.paused) {
-      audio.pause();
-      audio.currentTime = 0;
+      try { audio.pause(); audio.currentTime = 0; } catch(e){}
     }
   });
 }
@@ -962,7 +975,7 @@ function renderLearnCard(skipSpeak = false) {
     speakItem(item, () => {
       // หลังอ่านจบ ถ้าเปิด auto-play ให้ไปตัวถัดไปอัตโนมัติ
       if (app.autoPlay && app.idx < app.data.length - 1) {
-        setTimeout(() => nextLetter(false), 800);
+        setTimeout(() => { stopAllAudio(); nextLetter(false); }, 800);
       } else if (app.autoPlay && app.idx === app.data.length - 1) {
         stopAutoPlay();
         celebrateAllDone();

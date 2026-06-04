@@ -16,6 +16,7 @@ body {
 .screen {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   transition: opacity .35s ease, transform .35s ease;
+  pointer-events: auto;
 }
 .screen.hidden { opacity: 0; pointer-events: none; transform: scale(.97); }
 

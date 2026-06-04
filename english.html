@@ -528,7 +528,11 @@ function initAC() {
 
 function resumeAC() {
   initAC();
-  if (AC.state === 'suspended') AC.resume();
+  if (AC.state === 'suspended') {
+    AC.resume().then(decodeAllPending).catch(() => {});
+  } else {
+    decodeAllPending();
+  }
 }
 
 /* ── Play a single BGM note (triangle wave — soft & kid-friendly) ── */
@@ -729,38 +733,63 @@ function spawnNotes(x, y, count = 3) {
 /* ══════════════════════════════════════════════
    AUDIO SYSTEM — Google Cloud TTS (Pre-generated)
 ══════════════════════════════════════════════ */
-const audioCache = new Map(); // url → AudioBuffer
+const rawCache   = new Map(); // url → ArrayBuffer  (fetched at startup, before AC)
+const audioCache = new Map(); // url → AudioBuffer  (decoded after AC running)
+const _decoding  = new Map(); // url → Promise       (prevent double-decode)
 
-/* Load audio file as AudioBuffer (Web Audio API — iOS-safe, no per-play gesture needed) */
+/* Phase 1: fetch only — no AudioContext needed */
 async function loadAudio(url) {
-  if (audioCache.has(url)) return audioCache.get(url);
+  if (rawCache.has(url) || audioCache.has(url)) return;
   try {
-    initAC();
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await new Promise((resolve, reject) => {
-      AC.decodeAudioData(arrayBuffer, resolve, reject);
-    });
-    audioCache.set(url, audioBuffer);
-    return audioBuffer;
-  } catch (err) {
-    console.warn('⚠️ Failed to load audio:', url, err);
-    return null;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    rawCache.set(url, await res.arrayBuffer());
+  } catch(err) {
+    console.warn('⚠️ Failed to fetch audio:', url, err);
   }
 }
 
-/* Play AudioBuffer via AudioBufferSourceNode — works in iOS auto-play chains */
+/* Phase 2: decode all pending raw buffers — call after AC.resume() */
+async function decodeAllPending() {
+  if (!AC || AC.state !== 'running') return;
+  const urls = [...rawCache.keys()];
+  await Promise.all(urls.map(url => _decodeOne(url)));
+}
+
+function _decodeOne(url) {
+  if (audioCache.has(url))  { rawCache.delete(url); return Promise.resolve(audioCache.get(url)); }
+  if (_decoding.has(url))   return _decoding.get(url);
+  const raw = rawCache.get(url);
+  if (!raw) return Promise.resolve(null);
+  rawCache.delete(url); // ArrayBuffer will be detached after decode
+  const p = new Promise(resolve => {
+    AC.decodeAudioData(raw,
+      buf  => { audioCache.set(url, buf); resolve(buf); },
+      err  => { console.warn('⚠️ Decode failed:', url, err); resolve(null); }
+    );
+  }).finally(() => _decoding.delete(url));
+  _decoding.set(url, p);
+  return p;
+}
+
+/* Play — decodes on-the-fly if not yet decoded (iOS: AC must be running at this point) */
 let _currentAudios = [];
 
 function playAudio(url, onComplete) {
   resumeAC();
   const buffer = audioCache.get(url);
-  if (!buffer) {
-    console.warn('⚠️ Audio not cached:', url);
-    if (onComplete) setTimeout(onComplete, 500);
-    return;
+  if (buffer) {
+    _playBuffer(buffer, onComplete);
+  } else {
+    // Decode on-the-fly (AC just resumed from user gesture or touchstart)
+    _decodeOne(url).then(buf => {
+      if (buf) { _playBuffer(buf, onComplete); }
+      else     { console.warn('⚠️ Audio unavailable:', url); if (onComplete) setTimeout(onComplete, 500); }
+    });
   }
+}
+
+function _playBuffer(buffer, onComplete) {
   const source = AC.createBufferSource();
   source.buffer = buffer;
   source.connect(AC.destination);

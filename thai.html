@@ -999,7 +999,7 @@ function renderLearnCard(skipSpeak = false) {
     speakItem(item, () => {
       // หลังอ่านจบ ถ้าเปิด auto-play ให้ไปตัวถัดไปอัตโนมัติ
       if (app.autoPlay && app.idx < app.data.length - 1) {
-        setTimeout(() => nextLetter(), 800);
+        setTimeout(() => nextLetter(false), 800);
       } else if (app.autoPlay && app.idx === app.data.length - 1) {
         stopAutoPlay();
         celebrateAllDone();
@@ -1035,23 +1035,21 @@ function onLetterTap() {
   setTimeout(() => lEl.classList.remove('wiggle'), 550);
 }
 
-function nextLetter() {
+function nextLetter(fromUser = true) {
   if (app.idx < app.data.length - 1) {
-    stopAutoPlay(); // หยุด auto play ทันทีเมื่อผู้ใช้กดเอง
-    stopAllAudio(); // หยุดเสียงทันที
-    app.idx++; playSFX('next'); 
-    renderLearnCard(); // เล่นเสียงปกติ
+    if (fromUser) { stopAutoPlay(); stopAllAudio(); }
+    app.idx++; playSFX('next');
+    renderLearnCard();
   } else {
     stopAutoPlay(); celebrateAllDone();
   }
 }
 
-function prevLetter() {
+function prevLetter(fromUser = true) {
   if (app.idx > 0) {
-    stopAutoPlay(); // หยุด auto play ทันทีเมื่อผู้ใช้กดเอง
-    stopAllAudio(); // หยุดเสียงทันที
-    app.idx--; playSFX('prev'); 
-    renderLearnCard(); // เล่นเสียงปกติ
+    if (fromUser) { stopAutoPlay(); stopAllAudio(); }
+    app.idx--; playSFX('prev');
+    renderLearnCard();
   }
 }
 

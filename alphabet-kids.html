@@ -23,14 +23,23 @@ body {
 @media (max-width: 640px) {
   .letter-huge { font-size: clamp(72px, 26vw, 160px) !important; }
   .emoji-huge  { font-size: clamp(58px, 18vw, 120px) !important; }
-  .btn { min-width: 44px; min-height: 44px; }
-  #btn-prev, #btn-next { width: 54px !important; height: 54px !important; font-size: 22px !important; }
+  .btn { min-width: 48px; min-height: 48px; }
+  #btn-prev, #btn-next { width: 64px !important; height: 64px !important; font-size: 26px !important; }
   .letter-card { border-radius: 12px; }
+  #screen-learn .flex.items-center.gap-3 { gap: 10px !important; padding-left: 16px !important; padding-right: 16px !important; }
+  #screen-learn button[onclick="onLetterTap()"] { padding: 16px !important; font-size: clamp(16px, 5vw, 22px) !important; }
+  #learn-word { font-size: clamp(24px, 7vw, 48px) !important; margin-top: 8px !important; }
+  #autoplay-btn { padding: 10px 18px !important; font-size: 16px !important; min-width: 92px !important; }
+  button[onclick="exitLearn()"] { width: 52px !important; height: 52px !important; font-size: 24px !important; }
 }
 @media (max-width: 380px) {
   .letter-huge { font-size: clamp(64px, 24vw, 140px) !important; }
   .emoji-huge  { font-size: clamp(50px, 16vw, 100px) !important; }
-  #btn-prev, #btn-next { width: 48px !important; height: 48px !important; font-size: 20px !important; }
+  #btn-prev, #btn-next { width: 56px !important; height: 56px !important; font-size: 24px !important; }
+  #screen-learn .flex.items-center.gap-3 { gap: 8px !important; }
+  #autoplay-btn { padding: 8px 14px !important; font-size: 14px !important; min-width: 80px !important; }
+  button[onclick="exitLearn()"] { width: 46px !important; height: 46px !important; font-size: 20px !important; }
+}
 }
 
 @keyframes float      { 0%,100%{transform:translateY(0)rotate(-3deg)}50%{transform:translateY(-18px)rotate(3deg)} }
@@ -243,50 +252,55 @@ body {
   <div id="learn-swipe"></div>
 
   <div class="flex items-center justify-between px-4"
-       style="padding-top:56px;padding-bottom:2px;position:relative;z-index:3;flex-shrink:0;">
+       style="padding-top:56px;padding-bottom:8px;position:relative;z-index:3;flex-shrink:0;">
     <button onclick="exitLearn()" class="btn"
-      style="background:rgba(255,255,255,.2);border:none;border-radius:50%;
-             width:44px;height:44px;font-size:20px;color:#fff;
-             display:flex;align-items:center;justify-content:center;">←</button>
-    <div id="learn-dots" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:55%;"></div>
+      style="background:rgba(255,255,255,.22);border:none;border-radius:50%;
+             width:48px;height:48px;font-size:22px;color:#fff;
+             display:flex;align-items:center;justify-content:center;
+             box-shadow:0 2px 8px rgba(0,0,0,.12);">←</button>
+    <div id="learn-dots" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:50%;"></div>
     <button id="autoplay-btn" onclick="toggleAutoPlay()" class="btn"
-      style="background:rgba(255,255,255,.2);border:none;border-radius:20px;
-             padding:7px 12px;font-size:13px;color:#fff;font-weight:700;font-family:inherit;">
+      style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.35);border-radius:24px;
+             padding:9px 16px;font-size:15px;color:#fff;font-weight:800;font-family:inherit;
+             box-shadow:0 2px 8px rgba(0,0,0,.12);min-width:88px;">
       ▶️ Auto
     </button>
   </div>
 
   <div class="flex-1 flex flex-col items-center justify-center"
-       style="position:relative;z-index:3;padding:2px 16px;">
-    <p id="learn-counter" style="color:rgba(255,255,255,.6);font-size:clamp(11px,3.2vw,15px);margin-bottom:2px;"></p>
+       style="position:relative;z-index:3;padding:8px 20px;">
+    <p id="learn-counter" style="color:rgba(255,255,255,.65);font-size:clamp(12px,3.5vw,16px);margin-bottom:6px;font-weight:700;"></p>
     <div id="learn-letter" class="letter-huge"
-         style="color:#fff;cursor:pointer;text-align:center;" onclick="onLetterTap()"></div>
+         style="color:#fff;cursor:pointer;text-align:center;user-select:none;" onclick="onLetterTap()"></div>
     <div id="learn-emoji" class="emoji-huge float"
-         style="cursor:pointer;text-align:center;margin:4px 0;" onclick="onLetterTap()"></div>
+         style="cursor:pointer;text-align:center;margin:8px 0;user-select:none;" onclick="onLetterTap()"></div>
     <div id="learn-word"
-         style="color:#fff;font-size:clamp(22px,6.5vw,44px);font-weight:900;
-                text-align:center;text-shadow:2px 2px 5px rgba(0,0,0,.3);"></div>
-    <p style="color:rgba(255,255,255,.48);font-size:clamp(11px,2.8vw,13px);margin-top:5px;">
-      👆 แตะตัวอักษรหรือรูปภาพเพื่อฟังเสียง &nbsp;|&nbsp; ← ปัด →
+         style="color:#fff;font-size:clamp(24px,7vw,48px);font-weight:900;
+                text-align:center;text-shadow:2px 2px 5px rgba(0,0,0,.3);margin-top:6px;"></div>
+    <p style="color:rgba(255,255,255,.55);font-size:clamp(12px,3vw,14px);margin-top:10px;line-height:1.4;text-align:center;padding:0 10px;">
+      👆 แตะตัวอักษรหรือรูปภาพเพื่อฟังเสียง<br class="sm:hidden">&nbsp;|&nbsp; ← ปัด →
     </p>
   </div>
 
   <div class="flex items-center gap-3 px-5 pb-5"
-       style="position:relative;z-index:3;flex-shrink:0;">
+       style="position:relative;z-index:3;flex-shrink:0;padding-bottom:max(env(safe-area-inset-bottom, 20px), 20px);">
     <button onclick="prevLetter()" id="btn-prev" class="btn"
-      style="background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);
-             border-radius:50%;width:60px;height:60px;flex-shrink:0;
-             font-size:24px;color:#fff;display:flex;align-items:center;justify-content:center;">◀</button>
+      style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.45);
+             border-radius:50%;width:70px;height:70px;flex-shrink:0;
+             font-size:28px;color:#fff;display:flex;align-items:center;justify-content:center;
+             box-shadow:0 4px 12px rgba(0,0,0,.15);">◀</button>
     <button onclick="onLetterTap()" class="btn flex-1 pulse-ring"
-      style="background:rgba(255,255,255,.26);border:3px solid rgba(255,255,255,.6);
-             border-radius:20px;padding:14px;font-size:clamp(15px,4.8vw,21px);
-             color:#fff;font-weight:900;font-family:inherit;">
+      style="background:rgba(255,255,255,.28);border:3px solid rgba(255,255,255,.65);
+             border-radius:22px;padding:18px 14px;font-size:clamp(16px,5vw,22px);
+             color:#fff;font-weight:900;font-family:inherit;
+             box-shadow:0 4px 16px rgba(0,0,0,.2);min-height:70px;">
       <span class="spk-anim">🔊</span> ฟังเสียง
     </button>
     <button onclick="nextLetter()" id="btn-next" class="btn"
-      style="background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);
-             border-radius:50%;width:60px;height:60px;flex-shrink:0;
-             font-size:24px;color:#fff;display:flex;align-items:center;justify-content:center;">▶</button>
+      style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.45);
+             border-radius:50%;width:70px;height:70px;flex-shrink:0;
+             font-size:28px;color:#fff;display:flex;align-items:center;justify-content:center;
+             box-shadow:0 4px 12px rgba(0,0,0,.15);">▶</button>
   </div>
 </div>
 
@@ -931,6 +945,7 @@ function buildGrid() {
    LEARN
 ────────────────────────────────────────────── */
 function startLearnMode(startIdx = 0) {
+  stopAutoPlay(); // หยุด auto play ก่อนเสมอเมื่อเริ่ม learn mode ใหม่
   playSFX('click');
   app.idx = startIdx;
   document.getElementById('screen-learn').style.background =
@@ -1005,7 +1020,9 @@ function onLetterTap() {
 
 function nextLetter() {
   if (app.idx < app.data.length - 1) {
-    app.idx++; playSFX('next'); renderLearnCard();
+    stopAutoPlay(); // หยุด auto play ทันทีเมื่อผู้ใช้กดเอง
+    app.idx++; playSFX('next'); 
+    renderLearnCard(); // เล่นเสียงปกติ
   } else {
     stopAutoPlay(); celebrateAllDone();
   }
@@ -1013,7 +1030,9 @@ function nextLetter() {
 
 function prevLetter() {
   if (app.idx > 0) {
-    app.idx--; playSFX('prev'); renderLearnCard();
+    stopAutoPlay(); // หยุด auto play ทันทีเมื่อผู้ใช้กดเอง
+    app.idx--; playSFX('prev'); 
+    renderLearnCard(); // เล่นเสียงปกติ
   }
 }
 
@@ -1031,7 +1050,8 @@ function startAutoPlay() {
   app.autoPlay = true;
   const btn = document.getElementById('autoplay-btn');
   btn.textContent = '⏸️ หยุด';
-  btn.style.background = 'rgba(255,220,0,.4)';
+  btn.style.background = 'rgba(255,220,0,.45)';
+  btn.style.border = '2px solid rgba(255,220,0,.75)';
   // ไม่ใช้ setInterval อีกต่อไป ให้ TTS callback จัดการ timing เอง
   // การเล่นต่อจะถูกควบคุมใน renderLearnCard → speakItem callback
 }
@@ -1039,7 +1059,11 @@ function stopAutoPlay() {
   app.autoPlay = false;
   if (app.apTimer) { clearInterval(app.apTimer); app.apTimer = null; }
   const btn = document.getElementById('autoplay-btn');
-  if (btn) { btn.textContent = '▶️ Auto'; btn.style.background = 'rgba(255,255,255,.2)'; }
+  if (btn) { 
+    btn.textContent = '▶️ Auto'; 
+    btn.style.background = 'rgba(255,255,255,.22)';
+    btn.style.border = '2px solid rgba(255,255,255,.35)';
+  }
 }
 
 /* ──────────────────────────────────────────────

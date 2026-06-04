@@ -907,14 +907,23 @@ function getLang(letter) {
    SCREEN MANAGEMENT
 ────────────────────────────────────────────── */
 function showScreen(id) {
+  console.log('showScreen called with:', id);
   resumeAC();
-  document.querySelectorAll('.screen').forEach(s =>
-    s.classList.toggle('hidden', s.id !== id)
-  );
+  document.querySelectorAll('.screen').forEach(s => {
+    const shouldHide = s.id !== id;
+    console.log(`Screen ${s.id}: ${shouldHide ? 'hiding' : 'showing'}`);
+    s.classList.toggle('hidden', shouldHide);
+  });
   const hud = document.getElementById('hud');
   hud.style.display = 'flex';
+  console.log('HUD display:', hud.style.display);
   if (id !== 'screen-learn' && app.autoPlay) stopAutoPlay();
   syncStars();
+  
+  // Check if screen is actually visible
+  const targetScreen = document.getElementById(id);
+  console.log(`Target screen ${id} has hidden class:`, targetScreen.classList.contains('hidden'));
+  console.log(`Target screen ${id} computed display:`, window.getComputedStyle(targetScreen).display);
 }
 
 function goHome() {
@@ -925,16 +934,22 @@ function goHome() {
    MODE
 ────────────────────────────────────────────── */
 function startMode(mode) {
+  console.log('startMode called with:', mode);
   resumeAC();
   playSFX('click');
   app.mode = mode;
   app.data = mode === 'thai' ? THAI : mode === 'english' ? ENG : [...THAI,...ENG];
+  console.log('startMode: app.data set to', app.data.length, 'items');
   app.learnedSet.clear();
+  console.log('startMode: Calling buildGrid...');
   buildGrid();
+  console.log('startMode: buildGrid completed, calling showScreen...');
   showScreen('screen-grid');
+  console.log('startMode: showScreen completed');
   if (!bgmSeqTimer && bgmOn) startBGMSeq();
   // Preload audio files for selected mode
   preloadAudio().catch(err => console.warn('⚠️ Audio preload failed:', err));
+  console.log('startMode: All done!');
 }
 
 /* ──────────────────────────────────────────────
@@ -1599,15 +1614,27 @@ document.addEventListener('keydown', e => {
    INIT
 ────────────────────────────────────────────── */
 (function init() {
+  console.log('INIT: Starting initialization...');
   syncStars();
-  document.getElementById('hud').style.display = 'none';
+  const hud = document.getElementById('hud');
+  console.log('INIT: HUD element:', hud);
+  hud.style.display = 'none';
+  console.log('INIT: HUD hidden');
+  
   if (window.speechSynthesis) {
     window.speechSynthesis.getVoices();
     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
   }
   
+  console.log('INIT: All screens:', document.querySelectorAll('.screen').length);
+  document.querySelectorAll('.screen').forEach(s => {
+    console.log(`INIT: Screen ${s.id} has hidden:`, s.classList.contains('hidden'));
+  });
+  
   // Start English mode immediately
+  console.log('INIT: Scheduling startMode in 100ms...');
   setTimeout(() => {
+    console.log('INIT: Now calling startMode...');
     startMode('english');
   }, 100);
 })();

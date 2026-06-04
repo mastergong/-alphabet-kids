@@ -403,7 +403,6 @@ function speakText(text, lang, onComplete) {
 
 function playNumber() {
   const item = app.groupData[app.idx];
-  playSFX('click');
   // Play: thai -> english  (fallback to speechSynthesis if no MP3)
   const thaiPath = `audio/numbers/${item.num}_thai.mp3`;
   const engPath  = `audio/numbers/${item.num}_eng.mp3`;

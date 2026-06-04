@@ -386,18 +386,40 @@ function renderLearn() {
   document.getElementById('learn-english').textContent = item.english;
 }
 
+// Speech synthesis fallback (for numbers without MP3 files)
+function speakText(text, lang, onComplete) {
+  if (!app.soundOn) { if (onComplete) setTimeout(onComplete, 100); return; }
+  if (!window.speechSynthesis) { if (onComplete) setTimeout(onComplete, 100); return; }
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = lang;
+  utt.rate = 0.85;
+  utt.pitch = 1.1;
+  utt.onend = () => { if (onComplete) setTimeout(onComplete, 150); };
+  utt.onerror = () => { if (onComplete) setTimeout(onComplete, 150); };
+  // iOS fix: delay slightly after cancel
+  setTimeout(() => window.speechSynthesis.speak(utt), 50);
+}
+
 function playNumber() {
   const item = app.groupData[app.idx];
   playSFX('click');
-  // Play: thai -> english
+  // Play: thai -> english  (fallback to speechSynthesis if no MP3)
   const thaiPath = `audio/numbers/${item.num}_thai.mp3`;
-  const engPath = `audio/numbers/${item.num}_eng.mp3`;
-  
-  playAudio(thaiPath, () => {
-    setTimeout(() => {
-      playAudio(engPath);
-    }, 150);
-  });
+  const engPath  = `audio/numbers/${item.num}_eng.mp3`;
+
+  function playThai(onDone) {
+    const cached = app.audioCache.get(thaiPath);
+    if (cached) { playAudio(thaiPath, onDone); }
+    else { speakText(item.thai, 'th-TH', onDone); }
+  }
+  function playEng() {
+    const cached = app.audioCache.get(engPath);
+    if (cached) { playAudio(engPath); }
+    else { speakText(item.english, 'en-US'); }
+  }
+
+  playThai(() => setTimeout(playEng, 150));
 }
 
 function nextNumber() {

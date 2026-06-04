@@ -323,18 +323,13 @@ function renderLearn() {
 function playNumber() {
   const item = NUMBERS[app.idx];
   playSFX('click');
-  // Play: number -> thai -> english
-  const numPath = `audio/numbers/${item.num}_num.mp3`;
+  // Play: thai -> english
   const thaiPath = `audio/numbers/${item.num}_thai.mp3`;
   const engPath = `audio/numbers/${item.num}_eng.mp3`;
   
-  playAudio(numPath, () => {
+  playAudio(thaiPath, () => {
     setTimeout(() => {
-      playAudio(thaiPath, () => {
-        setTimeout(() => {
-          playAudio(engPath);
-        }, 150);
-      });
+      playAudio(engPath);
     }, 150);
   });
 }

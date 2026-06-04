@@ -543,6 +543,12 @@ const MELODY = [
 function initAC() {
   if (AC) return;
   AC = new (window.AudioContext || window.webkitAudioContext)();
+  // Auto-resume if iOS suspends mid auto-play
+  AC.addEventListener('statechange', () => {
+    if (AC.state === 'suspended' && document.visibilityState !== 'hidden') {
+      AC.resume().catch(() => {});
+    }
+  });
   bgmMasterGain = AC.createGain();
   bgmMasterGain.gain.value = 0.2;
   bgmMasterGain.connect(AC.destination);
@@ -751,86 +757,60 @@ function spawnNotes(x, y, count = 3) {
 /* ══════════════════════════════════════════════
    AUDIO SYSTEM — Google Cloud TTS (Pre-generated)
 ══════════════════════════════════════════════ */
-const audioCache = new Map();
-let audioContext = null;
+const audioCache = new Map(); // url → AudioBuffer
 
-function initAudioContext() {
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioContext.state === 'suspended') {
-    audioContext.resume();
-  }
-}
-
-/* Load and cache audio file */
+/* Load audio file as AudioBuffer (Web Audio API — iOS-safe, no per-play gesture needed) */
 async function loadAudio(url) {
   if (audioCache.has(url)) return audioCache.get(url);
-  
   try {
-    const audio = new Audio(url);
-    audio.preload = 'auto';
-    await new Promise((resolve, reject) => {
-      audio.oncanplaythrough = resolve;
-      audio.onerror = reject;
-      audio.load();
+    initAC();
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await new Promise((resolve, reject) => {
+      AC.decodeAudioData(arrayBuffer, resolve, reject);
     });
-    audioCache.set(url, audio);
-    return audio;
+    audioCache.set(url, audioBuffer);
+    return audioBuffer;
   } catch (err) {
     console.warn('⚠️ Failed to load audio:', url, err);
     return null;
   }
 }
 
-/* Play audio with callback */
-/* Play audio with callback */
-let _currentAudios = []; // track all currently playing audio instances
+/* Play AudioBuffer via AudioBufferSourceNode — works in iOS auto-play chains */
+let _currentAudios = [];
 
 function playAudio(url, onComplete) {
-  initAudioContext();
-  const cached = audioCache.get(url);
-  if (!cached) {
-    console.warn('⚠️ Audio not loaded:', url);
+  resumeAC();
+  const buffer = audioCache.get(url);
+  if (!buffer) {
+    console.warn('⚠️ Audio not cached:', url);
     if (onComplete) setTimeout(onComplete, 500);
     return;
   }
-
-  // Clone to avoid event/state collisions when replaying same file
-  const audio = cached.cloneNode();
-  audio.volume = 1.0;
-  _currentAudios.push(audio);
-
-  const cleanup = () => {
-    audio.removeEventListener('ended', onEnded);
-    audio.removeEventListener('error', onError);
-    const idx = _currentAudios.indexOf(audio);
+  const source = AC.createBufferSource();
+  source.buffer = buffer;
+  source.connect(AC.destination);
+  _currentAudios.push(source);
+  source.onended = () => {
+    const idx = _currentAudios.indexOf(source);
     if (idx !== -1) _currentAudios.splice(idx, 1);
+    if (onComplete) onComplete();
   };
-
-  const onEnded = () => { cleanup(); if (onComplete) onComplete(); };
-  const onError = () => { cleanup(); if (onComplete) setTimeout(onComplete, 300); };
-
-  audio.addEventListener('ended', onEnded);
-  audio.addEventListener('error', onError);
-
-  audio.play().catch(err => {
-    console.warn('⚠️ Audio playback failed:', err);
-    cleanup();
-    if (onComplete) setTimeout(onComplete, 500);
-  });
+  try {
+    source.start(0);
+  } catch(e) {
+    _currentAudios = _currentAudios.filter(s => s !== source);
+    console.warn('⚠️ Audio start error:', e);
+    if (onComplete) setTimeout(onComplete, 300);
+  }
 }
 
 /* Stop all playing audio */
 function stopAllAudio() {
-  _currentAudios.forEach(a => { try { a.pause(); } catch(e){} });
+  _currentAudios.forEach(s => { try { s.stop(0); s.disconnect(); } catch(e){} });
   _currentAudios = [];
-  // also stop cached audio (for safety)
-  audioCache.forEach(audio => {
-    if (audio && !audio.paused) {
-      try { audio.pause(); audio.currentTime = 0; } catch(e){}
-    }
-  });
 }
 
 /* Get audio file path for item */
@@ -852,7 +832,7 @@ function getAudioPath(item, type) {
     ภาษาอังกฤษ: letter.mp3 → word.mp3 → thai.mp3
 */
 function speakItem(item, onComplete) {
-  initAudioContext();
+  resumeAC();
   const lang = /^[A-Za-z]$/.test(item.letter) ? 'english' : 'thai';
   
   if (lang === 'thai') {
@@ -1591,6 +1571,9 @@ document.addEventListener('keydown', e => {
     window.speechSynthesis.getVoices();
     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
   }
+
+  // iOS: resume AudioContext on any touch (prevents silent auto-play after inactivity)
+  document.addEventListener('touchstart', () => resumeAC(), { passive: true });
 
   // หยุด/เล่น BGM เมื่อ tab ถูกซ่อน/แสดง
   document.addEventListener('visibilitychange', () => {

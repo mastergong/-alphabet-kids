@@ -119,8 +119,8 @@ function spk(text, lang, cb) {
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang=lang; u.rate=0.82; u.pitch=1.1;
-  u.onend = () => { if(cb) setTimeout(cb,120); };
-  u.onerror = () => { if(cb) setTimeout(cb,120); };
+  u.onend = () => { if(cb) setTimeout(cb,40); };
+  u.onerror = () => { if(cb) setTimeout(cb,40); };
   setTimeout(()=>speechSynthesis.speak(u), 60);
 }
 
@@ -128,7 +128,7 @@ function speakCurrent() {
   const c = COLORS[idx];
   const el = document.getElementById('lswatch');
   el.style.animation='none'; void el.offsetWidth; el.style.animation='bounce-in .4s both';
-  spk(c.thai, 'th-TH', ()=>setTimeout(()=>spk(c.english,'en-US'), 250));
+  spk(c.thai, 'th-TH', ()=>setTimeout(()=>spk(c.english,'en-US'), 60));
 }
 
 function showGrid() {

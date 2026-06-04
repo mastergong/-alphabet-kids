@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-<title>🔢 เรียนนับเลข 1-10</title>
+<title>🔢 เรียนนับเลข 1-100</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -74,15 +74,28 @@ body {
   </div>
 </div>
 
+<!-- Screen: Groups -->
+<div id="screen-groups" class="screen" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
+  <div style="padding-top:56px;padding-bottom:12px;flex-shrink:0;text-align:center;">
+    <h2 style="color:#fff;font-size:clamp(22px,6vw,32px);font-weight:900;">🔢 นับเลข 1-100</h2>
+    <p style="color:rgba(255,255,255,.8);font-size:clamp(13px,3.5vw,17px);margin-top:4px;">เลือกช่วงที่ต้องการเรียน</p>
+  </div>
+  <div id="groups-grid" style="flex:1;display:grid;grid-template-columns:repeat(2,1fr);
+       gap:12px;padding:12px;align-content:start;overflow-y:auto;"></div>
+</div>
+
 <!-- Screen: Grid -->
 <div id="screen-grid" class="screen" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
   
   <div class="flex items-center justify-between px-4" style="padding-top:56px;padding-bottom:12px;flex-shrink:0;">
-    <div></div>
-    <h2 style="color:#fff;font-size:clamp(20px,5.5vw,28px);font-weight:900;text-align:center;">
+    <button onclick="showGroups()" class="btn"
+      style="background:rgba(255,255,255,.25);border:none;border-radius:50%;
+             width:50px;height:50px;font-size:24px;color:#fff;
+             display:flex;align-items:center;justify-content:center;">←</button>
+    <h2 id="grid-title" style="color:#fff;font-size:clamp(20px,5.5vw,28px);font-weight:900;text-align:center;">
       นับเลข 1-10
     </h2>
-    <div></div>
+    <div style="width:50px;"></div>
   </div>
 
   <div id="numbers-grid" style="flex:1;display:grid;grid-template-columns:repeat(2,1fr);
@@ -196,25 +209,41 @@ body {
 </div>
 
 <script>
-// Data
-const NUMBERS = [
-  {num:1, thai:'หนึ่ง', english:'One', emoji:'1️⃣'},
-  {num:2, thai:'สอง', english:'Two', emoji:'2️⃣'},
-  {num:3, thai:'สาม', english:'Three', emoji:'3️⃣'},
-  {num:4, thai:'สี่', english:'Four', emoji:'4️⃣'},
-  {num:5, thai:'ห้า', english:'Five', emoji:'5️⃣'},
-  {num:6, thai:'หก', english:'Six', emoji:'6️⃣'},
-  {num:7, thai:'เจ็ด', english:'Seven', emoji:'7️⃣'},
-  {num:8, thai:'แปด', english:'Eight', emoji:'8️⃣'},
-  {num:9, thai:'เก้า', english:'Nine', emoji:'9️⃣'},
-  {num:10, thai:'สิบ', english:'Ten', emoji:'🔟'}
-];
+// Generate all numbers 1-100
+function _makeAllNumbers() {
+  const TH1 = ['','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];
+  const EN1  = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+                'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
+                'Seventeen','Eighteen','Nineteen'];
+  const EN10 = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  const EMO  = ['','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟'];
+  function th(n) {
+    if (n===1)   return 'หนึ่ง';
+    if (n===10)  return 'สิบ';
+    if (n===100) return 'หนึ่งร้อย';
+    const t=Math.floor(n/10), o=n%10;
+    let r = t===1 ? 'สิบ' : t===2 ? 'ยี่สิบ' : TH1[t]+'สิบ';
+    if (o===1) r+='เอ็ด'; else if (o>1) r+=TH1[o];
+    return r;
+  }
+  function en(n) {
+    if (n===100) return 'One Hundred';
+    if (n<20)    return EN1[n];
+    const t=Math.floor(n/10), o=n%10;
+    return o===0 ? EN10[t] : `${EN10[t]}-${EN1[o]}`;
+  }
+  const out=[];
+  for (let i=1;i<=100;i++) out.push({num:i, thai:th(i), english:en(i), emoji:EMO[i]||''});
+  return out;
+}
+const ALL_NUMBERS = _makeAllNumbers();
 
 let app = {
   idx: 0,
   stars: 0,
   soundOn: true,
   audioCache: new Map(),
+  groupData: ALL_NUMBERS.slice(0, 10), // active group of 10
   quiz: { questions: [], current: 0, score: 0, answered: false }
 };
 
@@ -280,19 +309,53 @@ function goHome() {
   window.location.href = 'index.html';
 }
 
+// Groups
+function showGroups() {
+  showScreen('screen-groups');
+  const ct = document.getElementById('groups-grid');
+  ct.innerHTML = '';
+  for (let g = 0; g < 10; g++) {
+    const group = ALL_NUMBERS.slice(g * 10, g * 10 + 10);
+    const first = group[0].num;
+    const last  = group[group.length - 1].num;
+    const card  = document.createElement('div');
+    card.className = 'number-card btn';
+    card.style.cssText = 'background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);padding:20px 12px;';
+    card.innerHTML = `
+      <div style="color:#fff;font-size:clamp(26px,7.5vw,44px);font-weight:900;line-height:1.1;">${first} - ${last}</div>
+      <div style="color:rgba(255,255,255,.75);font-size:clamp(11px,3vw,16px);font-weight:600;margin-top:8px;text-align:center;">
+        ${group.slice(0,3).map(n=>n.thai).join(' · ')} ...
+      </div>
+    `;
+    card.addEventListener('click', () => selectGroup(g));
+    ct.appendChild(card);
+  }
+}
+
+function selectGroup(g) {
+  playSFX('click');
+  app.groupData = ALL_NUMBERS.slice(g * 10, g * 10 + 10);
+  app.idx = 0;
+  showGrid();
+  preloadAudio();
+}
+
 // Grid
 function showGrid() {
   showScreen('screen-grid');
+  const first = app.groupData[0].num;
+  const last  = app.groupData[app.groupData.length - 1].num;
+  document.getElementById('grid-title').textContent = `นับเลข ${first}-${last}`;
   const grid = document.getElementById('numbers-grid');
   grid.innerHTML = '';
   
-  NUMBERS.forEach((item, idx) => {
+  app.groupData.forEach((item, idx) => {
     const card = document.createElement('div');
     card.className = 'number-card';
     card.style.cssText = `background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);`;
     card.innerHTML = `
       <div style="font-size:clamp(56px,18vw,100px);font-weight:900;color:#fff;line-height:1;">${item.num}</div>
-      <div style="font-size:clamp(40px,12vw,70px);line-height:1;margin:8px 0;">${item.emoji}</div>
+      ${item.emoji ? `<div style="font-size:clamp(40px,12vw,70px);line-height:1;margin:8px 0;">${item.emoji}</div>` : ''}
       <div style="color:#fff;font-size:clamp(16px,4.5vw,24px);font-weight:700;">${item.thai}</div>
       <div style="color:rgba(255,255,255,.8);font-size:clamp(13px,3.5vw,18px);font-weight:600;margin-top:4px;">${item.english}</div>
     `;
@@ -313,16 +376,18 @@ function startLearn(startIdx) {
 }
 
 function renderLearn() {
-  const item = NUMBERS[app.idx];
-  document.getElementById('learn-counter').textContent = `ตัวที่ ${app.idx + 1} จาก ${NUMBERS.length}`;
+  const item = app.groupData[app.idx];
+  document.getElementById('learn-counter').textContent = `ตัวที่ ${app.idx + 1} จาก ${app.groupData.length}`;
   document.getElementById('learn-number').textContent = item.num;
-  document.getElementById('learn-emoji').textContent = item.emoji;
+  const emojiEl = document.getElementById('learn-emoji');
+  emojiEl.textContent = item.emoji;
+  emojiEl.style.display = item.emoji ? '' : 'none';
   document.getElementById('learn-thai').textContent = item.thai;
   document.getElementById('learn-english').textContent = item.english;
 }
 
 function playNumber() {
-  const item = NUMBERS[app.idx];
+  const item = app.groupData[app.idx];
   playSFX('click');
   // Play: thai -> english
   const thaiPath = `audio/numbers/${item.num}_thai.mp3`;
@@ -336,7 +401,7 @@ function playNumber() {
 }
 
 function nextNumber() {
-  if (app.idx < NUMBERS.length - 1) {
+  if (app.idx < app.groupData.length - 1) {
     app.idx++;
     playSFX('click');
     renderLearn();
@@ -375,16 +440,16 @@ function generateQuestions() {
   const questions = [];
   const used = new Set();
   
-  while (questions.length < 5) {
-    const idx = Math.floor(Math.random() * NUMBERS.length);
+  while (questions.length < Math.min(5, app.groupData.length)) {
+    const idx = Math.floor(Math.random() * app.groupData.length);
     if (used.has(idx)) continue;
     used.add(idx);
     
-    const correct = NUMBERS[idx];
+    const correct = app.groupData[idx];
     const choices = [correct];
     
     while (choices.length < 3) {
-      const other = NUMBERS[Math.floor(Math.random() * NUMBERS.length)];
+      const other = app.groupData[Math.floor(Math.random() * app.groupData.length)];
       if (!choices.includes(other)) choices.push(other);
     }
     
@@ -487,24 +552,18 @@ function updateStars() {
 
 // Preload audio
 async function preloadAudio() {
-  console.log('🎵 Preloading number audio...');
   const promises = [];
-  
-  for (const item of NUMBERS) {
-    promises.push(loadAudio(`audio/numbers/${item.num}_num.mp3`));
+  for (const item of app.groupData) {
     promises.push(loadAudio(`audio/numbers/${item.num}_thai.mp3`));
     promises.push(loadAudio(`audio/numbers/${item.num}_eng.mp3`));
   }
-  
   await Promise.all(promises);
-  console.log('✅ Audio preloaded');
 }
 
 // Init
 (function() {
   updateStars();
-  showGrid();
-  preloadAudio();
+  showGroups();
 })();
 </script>
 </body>

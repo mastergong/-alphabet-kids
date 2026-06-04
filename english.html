@@ -959,8 +959,12 @@ function buildGrid() {
 
   const ct = document.getElementById('letters-grid');
   console.log('Grid container:', ct);
+  console.log('app.data:', app.data);
+  console.log('app.data is Array?', Array.isArray(app.data));
   ct.innerHTML = '';
+  console.log('Starting forEach loop with', app.data?.length, 'items');
   app.data.forEach((item, i) => {
+    console.log('Creating card for:', item.letter, 'index:', i);
     const col  = CARD_COLORS[i % CARD_COLORS.length];
     const done = app.learnedSet.has(i);
     const card = document.createElement('div');
@@ -976,6 +980,7 @@ function buildGrid() {
     card.addEventListener('click', () => { playSFX('click'); startLearnMode(i); });
     ct.appendChild(card);
   });
+  console.log('forEach completed. Grid has', ct.children.length, 'cards');
   syncStars();
 }
 

@@ -417,19 +417,13 @@ body {
                 margin-top:4px;font-weight:600;">👇 เขียนตามเส้นประด้านล่าง</p>
     </div>
     
-    <!-- Container สำหรับ Canvas + Guide -->
-    <div style="position:relative;display:inline-block;">
-      <!-- Canvas สำหรับเส้นประ (ด้านหลัง) -->
-      <canvas id="guide-canvas"
-              style="position:absolute;top:0;left:0;pointer-events:none;
-                     border-radius:24px;z-index:1;"></canvas>
-      
-      <!-- Canvas สำหรับวาด (ด้านหน้า) -->
+    <!-- Container สำหรับ Canvas -->
+    <div style="position:relative;display:inline-block;">      
+      <!-- Canvas สำหรับวาด + เส้นประ -->
       <canvas id="write-canvas"
               style="background:rgba(255,255,255,.95);border-radius:24px;
                      box-shadow:0 8px 24px rgba(0,0,0,.15);touch-action:none;
-                     cursor:crosshair;max-width:420px;width:90vw;
-                     position:relative;z-index:2;"></canvas>
+                     cursor:crosshair;max-width:420px;width:90vw;"></canvas>
     </div>
     
     <p style="color:rgba(255,255,255,.85);font-size:clamp(12px,3.2vw,14px);
@@ -1264,8 +1258,9 @@ function exitQuiz() { playSFX('click'); showScreen('screen-grid'); }
 /* ──────────────────────────────────────────────
    WRITING PRACTICE
 ────────────────────────────────────────────── */
-let canvas, ctx, guideCanvas, guideCtx, isDrawing = false;
+let canvas, ctx, isDrawing = false;
 let hasDrawnAnything = false;
+let currentLetter = '';
 
 function startWriting(startIdx = 0) {
   stopAllAudio(); playSFX('click');
@@ -1282,15 +1277,11 @@ function startWriting(startIdx = 0) {
 function setupCanvas() {
   canvas = document.getElementById('write-canvas');
   ctx = canvas.getContext('2d');
-  guideCanvas = document.getElementById('guide-canvas');
-  guideCtx = guideCanvas.getContext('2d');
   
   // ตั้งขนาด canvas
   const size = Math.min(window.innerWidth * 0.9, 420);
   canvas.width = size;
   canvas.height = size;
-  guideCanvas.width = size;
-  guideCanvas.height = size;
   
   // ตั้งค่า drawing
   ctx.lineWidth = 12;
@@ -1340,14 +1331,22 @@ function getPointerPos(e) {
 }
 
 function clearCanvas() {
+  // ล้าง canvas
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // วาด guide กลับมา (ถ้ามี)
+  if (currentLetter) {
+    drawStrokeGuide(currentLetter);
+  }
+  
   hasDrawnAnything = false;
   playSFX('click');
 }
 
 function renderWritingCard() {
   const item = app.data[app.idx];
+  currentLetter = item.letter;
   
   // แสดงชื่อตัวอักษร + emoji
   document.getElementById('write-emoji').textContent = item.emoji;
@@ -1356,83 +1355,113 @@ function renderWritingCard() {
     `ตัวที่ ${app.idx + 1} จาก ${app.data.length}`;
   document.getElementById('write-stars').textContent = app.stars;
   
-  clearCanvas();
+  // เตรียม canvas ใหม่
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   drawStrokeGuide(item.letter);
+  hasDrawnAnything = false;
   
   // เล่นเสียงอ่านตัวอักษร
   setTimeout(() => speakItem(item), 300);
 }
 
 function drawStrokeGuide(letter) {
-  // ล้าง guide canvas
-  guideCtx.clearRect(0, 0, guideCanvas.width, guideCanvas.height);
-  
-  const w = guideCanvas.width;
-  const h = guideCanvas.height;
+  const w = canvas.width;
+  const h = canvas.height;
   const centerX = w / 2;
   const centerY = h / 2;
   
+  // บันทึกการตั้งค่าเดิม
+  const oldStrokeStyle = ctx.strokeStyle;
+  const oldFillStyle = ctx.fillStyle;
+  const oldLineWidth = ctx.lineWidth;
+  
   // วาดตัวอักษรจางๆ เป็น background
-  guideCtx.font = `${w * 0.6}px Sarabun, sans-serif`;
-  guideCtx.fillStyle = 'rgba(200,200,255,0.15)';
-  guideCtx.textAlign = 'center';
-  guideCtx.textBaseline = 'middle';
-  guideCtx.fillText(letter, centerX, centerY);
-  
-  // วาดเส้นประแบบง่าย (ลูกศรแนะนำ)
-  // ส่วนใหญ่ของตัวไทย เขียนจากบนลงล่าง และซ้ายไปขวา
-  
-  // จุดเริ่มต้น (บนซ้าย)
-  const startX = centerX - w * 0.2;
-  const startY = centerY - h * 0.25;
-  
-  // วาดวงกลม "เริ่ม" พร้อมเลข 1
-  guideCtx.fillStyle = 'rgba(34,197,94,0.7)';
-  guideCtx.beginPath();
-  guideCtx.arc(startX, startY, 18, 0, Math.PI * 2);
-  guideCtx.fill();
-  
-  guideCtx.fillStyle = '#fff';
-  guideCtx.font = 'bold 16px sans-serif';
-  guideCtx.textAlign = 'center';
-  guideCtx.textBaseline = 'middle';
-  guideCtx.fillText('1', startX, startY);
-  
-  // วาดลูกศรแนะนำ (จากบนลงล่าง)
-  drawArrow(guideCtx, startX, startY + 25, startX, startY + h * 0.3, 'rgba(59,130,246,0.5)');
-  
-  // ลูกศรที่ 2 (ซ้ายไปขวา - ถ้ามีหัว/หาง)
-  const start2X = centerX - w * 0.15;
-  const start2Y = centerY - h * 0.1;
-  drawArrow(guideCtx, start2X, start2Y, start2X + w * 0.3, start2Y, 'rgba(168,85,247,0.4)');
+  ctx.font = `900 ${w * 0.6}px Sarabun, sans-serif`;
+  ctx.fillStyle = 'rgba(180,180,220,0.2)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(letter, centerX, centerY);
   
   // เส้นโครงสร้างช่วย (grid)
-  guideCtx.strokeStyle = 'rgba(200,200,200,0.2)';
-  guideCtx.lineWidth = 1;
-  guideCtx.setLineDash([5, 5]);
+  ctx.strokeStyle = 'rgba(180,180,180,0.25)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8, 8]);
   
   // เส้นกลางแนวตั้ง
-  guideCtx.beginPath();
-  guideCtx.moveTo(centerX, 0);
-  guideCtx.lineTo(centerX, h);
-  guideCtx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(centerX, 0);
+  ctx.lineTo(centerX, h);
+  ctx.stroke();
   
   // เส้นกลางแนวนอน
-  guideCtx.beginPath();
-  guideCtx.moveTo(0, centerY);
-  guideCtx.lineTo(w, centerY);
-  guideCtx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, centerY);
+  ctx.lineTo(w, centerY);
+  ctx.stroke();
+  ctx.setLineDash([]);
   
-  guideCtx.setLineDash([]);
+  // จุดเริ่มต้น (บนซ้าย)
+  const startX = centerX - w * 0.18;
+  const startY = centerY - h * 0.22;
+  
+  // วาดวงกลม "เริ่ม" พร้อมเลข 1
+  ctx.fillStyle = 'rgba(34,197,94,0.85)';
+  ctx.beginPath();
+  ctx.arc(startX, startY, 20, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // เงาให้เด่น
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(startX, startY, 20, 0, Math.PI * 2);
+  ctx.stroke();
+  
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 18px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('1', startX, startY);
+  
+  // วาดลูกศรแนะนำ (จากบนลงล่าง)
+  drawArrow(ctx, startX, startY + 28, startX, startY + h * 0.35, 'rgba(59,130,246,0.7)', 6);
+  
+  // ลูกศรที่ 2 (ซ้ายไปขวา)
+  const start2X = centerX - w * 0.12;
+  const start2Y = centerY - h * 0.05;
+  
+  // วงกลมเลข 2
+  ctx.fillStyle = 'rgba(168,85,247,0.85)';
+  ctx.beginPath();
+  ctx.arc(start2X, start2Y, 18, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(start2X, start2Y, 18, 0, Math.PI * 2);
+  ctx.stroke();
+  
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 16px sans-serif';
+  ctx.fillText('2', start2X, start2Y);
+  
+  drawArrow(ctx, start2X + 23, start2Y, start2X + w * 0.32, start2Y, 'rgba(168,85,247,0.65)', 5);
+  
+  // คืนค่าการตั้งค่าเดิม
+  ctx.strokeStyle = oldStrokeStyle;
+  ctx.fillStyle = oldFillStyle;
+  ctx.lineWidth = oldLineWidth;
 }
 
-function drawArrow(ctx, fromX, fromY, toX, toY, color) {
-  const headlen = 12;
+function drawArrow(ctx, fromX, fromY, toX, toY, color, lineWidth = 4) {
+  const headlen = 15;
   const angle = Math.atan2(toY - fromY, toX - fromX);
   
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
-  ctx.lineWidth = 4;
+  ctx.lineWidth = lineWidth;
   ctx.lineCap = 'round';
   
   // เส้นหลัก

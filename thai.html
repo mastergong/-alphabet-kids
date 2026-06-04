@@ -161,55 +161,7 @@ body {
 </div>
 
 <!-- ════════════════════════════════════════
-     SCREEN 1 — WELCOME (HIDDEN for Thai-only mode)
-════════════════════════════════════════ -->
-<div id="screen-welcome" class="screen hidden"
-     style="background:linear-gradient(145deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);">
-  <div class="flex-1 flex flex-col items-center justify-center px-5 relative z-10">
-    <div class="float" style="font-size:clamp(88px,26vw,135px);line-height:1;margin-bottom:2px;">🇹🇭</div>
-    <h1 class="rainbow-text" style="font-size:clamp(24px,7vw,44px);font-weight:900;text-align:center;margin-bottom:2px;">
-      เรียนภาษาไทย
-    </h1>
-    <p style="color:rgba(255,255,255,.65);font-size:clamp(13px,3.8vw,20px);text-align:center;margin-bottom:20px;">
-      🎵 ก-ฮ • 44 พยัญชนะ • สนุกและจำได้! 🎯
-    </p>
-
-    <div class="flex flex-col gap-3 w-full" style="max-width:310px;">
-      <button onclick="startMode('thai')" class="btn glow-border"
-        style="background:linear-gradient(135deg,#ff6348,#ff4757);color:#fff;border:none;
-               border-radius:24px;padding:17px 20px;font-size:clamp(19px,5.2vw,27px);
-               font-weight:900;font-family:inherit;box-shadow:0 8px 24px rgba(255,71,87,.5);
-               display:flex;align-items:center;justify-content:center;gap:10px;">
-        🇹🇭 &nbsp;ก – ฮ &nbsp;ภาษาไทย
-      </button>
-      <button onclick="startMode('english')" class="btn"
-        style="background:linear-gradient(135deg,#4c6ef5,#7950f2);color:#fff;border:none;
-               border-radius:24px;padding:17px 20px;font-size:clamp(19px,5.2vw,27px);
-               font-weight:900;font-family:inherit;box-shadow:0 8px 24px rgba(124,80,242,.5);
-               display:flex;align-items:center;justify-content:center;gap:10px;">
-        🔤 &nbsp;A – Z &nbsp;English
-      </button>
-      <button onclick="startMode('both')" class="btn"
-        style="background:linear-gradient(135deg,#20bf6b,#01a3a4);color:#fff;border:none;
-               border-radius:24px;padding:13px 20px;font-size:clamp(16px,4.2vw,21px);
-               font-weight:900;font-family:inherit;box-shadow:0 8px 24px rgba(32,191,107,.4);
-               display:flex;align-items:center;justify-content:center;gap:10px;">
-        🌟 &nbsp;เรียนทั้งสองภาษา!
-      </button>
-    </div>
-
-    <p style="color:rgba(255,255,255,.38);font-size:12px;margin-top:16px;text-align:center;">
-      🔊 กรุณาเปิดเสียงเพื่อประสบการณ์ที่ดีที่สุด
-    </p>
-  </div>
-
-  <p style="color:rgba(255,255,255,.28);text-align:center;padding:10px;font-size:12px;flex-shrink:0;">
-    🎯 ออกแบบสำหรับเด็กอายุ 3+ ปี
-  </p>
-</div>
-
-<!-- ════════════════════════════════════════
-     SCREEN 2 — GRID
+     SCREEN — GRID
 ════════════════════════════════════════ -->
 <div id="screen-grid" class="screen hidden">
   <div class="flex items-center justify-between px-4"
@@ -964,16 +916,13 @@ function showScreen(id) {
     s.classList.toggle('hidden', s.id !== id)
   );
   const hud = document.getElementById('hud');
-  const showHUD = id !== 'screen-welcome';
-  hud.style.display = showHUD ? 'flex' : 'none';
+  hud.style.display = 'flex';
   if (id !== 'screen-learn' && app.autoPlay) stopAutoPlay();
   syncStars();
 }
 
 function goHome() {
-  stopAutoPlay(); playSFX('click');
-  showScreen('screen-welcome');
-  stopBGMSeq();
+  window.location.href = 'index.html';
 }
 
 /* ──────────────────────────────────────────────

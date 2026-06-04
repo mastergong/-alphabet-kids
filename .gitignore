@@ -1,0 +1,10 @@
+# Google Cloud credentials (NEVER commit this!)
+google-cloud-key.json
+
+# Node modules
+node_modules/
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -97,8 +97,8 @@ async function synthesize(text, lang, filename) {
     input: { text },
     voice: {
       languageCode: lang === 'th' ? 'th-TH' : 'en-US',
-      name: lang === 'th' ? 'th-TH-Standard-A' : 'en-US-Neural2-C',
-      ssmlGender: 'NEUTRAL',
+      name: lang === 'th' ? 'th-TH-Standard-A' : 'en-US-Standard-C',
+      ssmlGender: 'FEMALE',
     },
     audioConfig: {
       audioEncoding: 'MP3',

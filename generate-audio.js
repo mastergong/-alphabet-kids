@@ -67,7 +67,7 @@ const ENG = [
   {letter:'A', word:'Ant',      thaiWord:'มด'},
   {letter:'B', word:'Bird',     thaiWord:'นก'},
   {letter:'C', word:'Cat',      thaiWord:'แมว'},
-  {letter:'D', word:'Dog',      thaiWord:'สุนัข'},
+  {letter:'D', word:'Dog',      thaiWord:'หมา'},
   {letter:'E', word:'Egg',      thaiWord:'ไข่'},
   {letter:'F', word:'Flower',   thaiWord:'ดอกไม้'},
   {letter:'G', word:'Goat',     thaiWord:'แพะ'},

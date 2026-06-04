@@ -1590,7 +1590,16 @@ document.addEventListener('keydown', e => {
     window.speechSynthesis.getVoices();
     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
   }
-  
+
+  // หยุด/เล่น BGM เมื่อ tab ถูกซ่อน/แสดง
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopBGMSeq();
+    } else {
+      if (bgmOn) startBGMSeq();
+    }
+  });
+
   // เริ่มต้นโหมดภาษาไทยทันที
   setTimeout(() => {
     startMode('thai');

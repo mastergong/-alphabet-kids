@@ -1184,14 +1184,12 @@ function handleAnswer(correct, btn, container, correctItem) {
     playSFX('correct');
     launchConfetti(24);
     spawnNotes(window.innerWidth*.5, window.innerHeight*.55, 5);
-    speak('เก่งมาก!', 'th-TH');
     setTimeout(advanceQuiz, 1400);
   } else {
     btn.style.background = '#ff6b6b';
     btn.classList.add('shake');
     setTimeout(() => btn.classList.remove('shake'), 550);
     playSFX('wrong');
-    speak('ลองใหม่นะ', 'th-TH');
     setTimeout(() => {
       container.querySelectorAll('.choice').forEach(b => {
         if (b.querySelector('div')?.textContent?.trim() === correctItem.emoji) {
@@ -1469,7 +1467,6 @@ function showResult() {
   showScreen('screen-result');
   launchConfetti(60);
   playSFX('fanfare');
-  speak('เก่งมากเลย!', 'th-TH');
 }
 
 /* ──────────────────────────────────────────────
@@ -1529,7 +1526,6 @@ function launchConfetti(count = 20) {
 function celebrateAllDone() {
   launchConfetti(80);
   playSFX('fanfare');
-  speak('เก่งมากเลย! เรียนครบทุกตัวแล้ว!', 'th-TH');
   const ov = document.createElement('div');
   ov.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.78);
     display:flex;flex-direction:column;align-items:center;justify-content:center;

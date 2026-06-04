@@ -1206,14 +1206,12 @@ function handleAnswer(correct, btn, container, correctItem) {
     playSFX('correct');
     launchConfetti(24);
     spawnNotes(window.innerWidth*.5, window.innerHeight*.55, 5);
-    speak('Great!', 'en-US');
     setTimeout(advanceQuiz, 1400);
   } else {
     btn.style.background = '#ff6b6b';
     btn.classList.add('shake');
     setTimeout(() => btn.classList.remove('shake'), 550);
     playSFX('wrong');
-    speak('Try again!', 'en-US');
     setTimeout(() => {
       container.querySelectorAll('.choice').forEach(b => {
         if (b.querySelector('div')?.textContent?.trim() === correctItem.emoji) {
@@ -1491,7 +1489,6 @@ function showResult() {
   showScreen('screen-result');
   launchConfetti(60);
   playSFX('fanfare');
-  speak('Great job!', 'en-US');
 }
 
 /* ──────────────────────────────────────────────
@@ -1551,7 +1548,6 @@ function launchConfetti(count = 20) {
 function celebrateAllDone() {
   launchConfetti(80);
   playSFX('fanfare');
-  speak('Great job! You learned all letters!', 'en-US');
   const ov = document.createElement('div');
   ov.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.78);
     display:flex;flex-direction:column;align-items:center;justify-content:center;

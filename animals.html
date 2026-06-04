@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🐾 เรียนรู้สัตว์</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+* { -webkit-tap-highlight-color:transparent; box-sizing:border-box; }
+body { font-family:'Fredoka One','Sarabun',sans-serif; overflow:hidden; height:100dvh; width:100vw; background:#1a1a2e; touch-action:pan-y; }
+.screen { position:absolute; inset:0; display:flex; flex-direction:column; transition:opacity .35s,transform .35s; }
+.screen.hidden { opacity:0; pointer-events:none; transform:scale(.97); }
+.btn { transition:transform .15s; cursor:pointer; user-select:none; }
+.btn:active { transform:scale(0.88)!important; }
+.a-card { border-radius:20px; cursor:pointer; user-select:none; transition:transform .2s; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.a-card:active { transform:scale(0.88); }
+@keyframes bounce-in { 0%{transform:scale(.2);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1} }
+@keyframes wiggle { 0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)} }
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:200;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;">
+  <a href="index.html" style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border-radius:30px;padding:8px 14px;pointer-events:auto;display:flex;align-items:center;border:1.5px solid rgba(255,255,255,.3);text-decoration:none;font-size:18px;">🏠</a>
+  <div style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border-radius:30px;padding:5px 14px;display:flex;align-items:center;gap:5px;border:1.5px solid rgba(255,220,80,.4);">
+    <span style="font-size:18px;">⭐</span><span id="stars" style="color:#fcd34d;font-weight:900;font-size:17px;">0</span>
+  </div>
+</div>
+
+<!-- Grid Screen -->
+<div id="sg" class="screen" style="background:linear-gradient(135deg,#56ab2f,#a8e063);">
+  <div style="padding-top:62px;text-align:center;flex-shrink:0;padding-bottom:8px;">
+    <h2 style="color:#fff;font-size:clamp(22px,6vw,32px);font-weight:900;">🐾 เรียนรู้สัตว์</h2>
+    <p style="color:rgba(255,255,255,.8);font-size:clamp(12px,3.5vw,16px);">กดสัตว์ที่ต้องการเรียน</p>
+  </div>
+  <div id="agrid" style="flex:1;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;overflow-y:auto;align-content:start;"></div>
+  <div style="flex-shrink:0;display:flex;gap:10px;padding:10px 12px 18px;">
+    <button onclick="startLearn(0)" class="btn" style="flex:1;background:rgba(255,255,255,.25);color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:16px;padding:14px;font-size:clamp(14px,4vw,18px);font-weight:900;font-family:inherit;">📖 เรียนทีละตัว</button>
+    <button onclick="startQuiz()" class="btn" style="flex:1;background:rgba(255,255,255,.25);color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:16px;padding:14px;font-size:clamp(14px,4vw,18px);font-weight:900;font-family:inherit;">🎮 ทดสอบ</button>
+  </div>
+</div>
+
+<!-- Learn Screen -->
+<div id="sl" class="screen hidden" style="background:linear-gradient(135deg,#56ab2f,#a8e063);">
+  <div style="padding-top:62px;display:flex;align-items:center;justify-content:space-between;padding-left:16px;padding-right:16px;flex-shrink:0;padding-bottom:8px;">
+    <button onclick="showGrid()" class="btn" style="background:rgba(255,255,255,.25);border:none;border-radius:50%;width:48px;height:48px;font-size:22px;color:#fff;display:flex;align-items:center;justify-content:center;">←</button>
+    <div id="lctr" style="color:rgba(255,255,255,.9);font-size:clamp(14px,4vw,18px);font-weight:700;"></div>
+    <div style="width:48px;"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;">
+    <div id="lemoji" onclick="speakCurrent()" class="btn" style="font-size:clamp(100px,32vw,200px);line-height:1;cursor:pointer;animation:bounce-in .5s both;filter:drop-shadow(4px 6px 10px rgba(0,0,0,.3));"></div>
+    <div id="lthai" style="color:#fff;font-size:clamp(28px,8.5vw,50px);font-weight:900;margin-top:16px;text-shadow:2px 2px 4px rgba(0,0,0,.3);"></div>
+    <div id="leng" style="color:rgba(255,255,255,.88);font-size:clamp(18px,5.5vw,32px);font-weight:700;margin-top:6px;"></div>
+    <div id="lsound" style="color:rgba(255,255,255,.7);font-size:clamp(16px,5vw,26px);font-weight:700;margin-top:8px;font-style:italic;">🔉 <span id="lsoundtxt"></span></div>
+    <p style="color:rgba(255,255,255,.5);font-size:13px;margin-top:12px;">👆 แตะเพื่อฟังเสียง</p>
+  </div>
+  <div style="flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 16px 20px;">
+    <button id="bprev" onclick="prevA()" class="btn" style="background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.5);border-radius:50%;width:60px;height:60px;font-size:26px;color:#fff;display:flex;align-items:center;justify-content:center;">◀</button>
+    <button onclick="speakCurrent()" class="btn" style="flex:1;background:rgba(255,255,255,.3);border:3px solid rgba(255,255,255,.6);border-radius:16px;padding:14px;font-size:clamp(15px,4.5vw,20px);color:#fff;font-weight:900;font-family:inherit;">🔊 ฟังเสียง</button>
+    <button id="bnext" onclick="nextA()" class="btn" style="background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.5);border-radius:50%;width:60px;height:60px;font-size:26px;color:#fff;display:flex;align-items:center;justify-content:center;">▶</button>
+  </div>
+</div>
+
+<!-- Quiz Screen -->
+<div id="sq" class="screen hidden" style="background:linear-gradient(135deg,#fc5c7d,#6a3093);">
+  <div style="padding-top:62px;display:flex;align-items:center;justify-content:space-between;padding-left:16px;padding-right:16px;flex-shrink:0;">
+    <button onclick="showGrid()" class="btn" style="background:rgba(255,255,255,.25);border:none;border-radius:50%;width:48px;height:48px;font-size:22px;color:#fff;display:flex;align-items:center;justify-content:center;">←</button>
+    <div id="qctr" style="color:#fff;font-size:clamp(16px,4.5vw,22px);font-weight:900;"></div>
+    <div style="width:48px;"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
+    <div style="color:#fff;font-size:clamp(18px,5.5vw,28px);font-weight:900;margin-bottom:8px;">สัตว์นี้ชื่ออะไร?</div>
+    <div id="qemoji" style="font-size:clamp(72px,22vw,140px);line-height:1;margin-bottom:16px;filter:drop-shadow(3px 4px 8px rgba(0,0,0,.3));"></div>
+    <div id="qchoices" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:400px;"></div>
+  </div>
+  <div style="flex-shrink:0;padding:8px 16px 16px;">
+    <div id="qfb" style="color:#fff;font-size:clamp(15px,4.5vw,20px);font-weight:800;text-align:center;min-height:30px;"></div>
+  </div>
+</div>
+
+<!-- Result Screen -->
+<div id="sr" class="screen hidden" style="background:linear-gradient(135deg,#fa709a,#fee140);">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+    <div style="font-size:clamp(56px,16vw,90px);">🎉</div>
+    <h1 style="color:#fff;font-size:clamp(26px,7.5vw,44px);font-weight:900;margin:8px 0;">เก่งมากเลย!</h1>
+    <div id="rstars" style="font-size:clamp(36px,10vw,60px);margin:6px 0;"></div>
+    <p id="rscore" style="color:#fff;font-size:clamp(16px,5vw,26px);font-weight:800;text-align:center;"></p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:24px;width:100%;max-width:280px;">
+      <button onclick="startQuiz()" class="btn" style="background:rgba(255,255,255,.95);color:#fc5c7d;border:none;border-radius:18px;padding:12px;font-size:clamp(16px,4.5vw,20px);font-weight:900;font-family:inherit;">🔄 เล่นอีกครั้ง</button>
+      <button onclick="showGrid()" class="btn" style="background:rgba(255,255,255,.3);color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:18px;padding:12px;font-size:clamp(15px,4vw,19px);font-weight:900;font-family:inherit;">🐾 กลับไปเรียน</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ANIMALS = [
+  {emoji:'🐶', thai:'หมา',      english:'Dog',      sound:'โฮ่ง โฮ่ง'},
+  {emoji:'🐱', thai:'แมว',      english:'Cat',      sound:'เมี้ยว เมี้ยว'},
+  {emoji:'🐄', thai:'วัว',      english:'Cow',      sound:'มอ มอ'},
+  {emoji:'🐷', thai:'หมู',      english:'Pig',      sound:'อู๊ด อู๊ด'},
+  {emoji:'🐔', thai:'ไก่',      english:'Chicken',  sound:'ก๊อก ก๊อก'},
+  {emoji:'🐸', thai:'กบ',       english:'Frog',     sound:'อ๊บ อ๊บ'},
+  {emoji:'🐘', thai:'ช้าง',     english:'Elephant', sound:'แปร๊น'},
+  {emoji:'🦁', thai:'สิงโต',    english:'Lion',     sound:'โฮ่ม'},
+  {emoji:'🐒', thai:'ลิง',      english:'Monkey',   sound:'วี๊ วี๊'},
+  {emoji:'🦆', thai:'เป็ด',     english:'Duck',     sound:'ก้าบ ก้าบ'},
+  {emoji:'🐰', thai:'กระต่าย',  english:'Rabbit',   sound:'...'},
+  {emoji:'🦉', thai:'นกฮูก',    english:'Owl',      sound:'ฮู ฮู'},
+  {emoji:'🐍', thai:'งู',       english:'Snake',    sound:'ฉือ ฉือ'},
+  {emoji:'🐯', thai:'เสือ',     english:'Tiger',    sound:'โฮ่ม'},
+  {emoji:'🐝', thai:'ผึ้ง',     english:'Bee',      sound:'วี้ง วี้ง'},
+  {emoji:'🦒', thai:'ยีราฟ',    english:'Giraffe',  sound:'...'},
+];
+
+const BG_COLORS = ['#56ab2f,#a8e063','#f7971e,#ffd200','#4facfe,#00f2fe','#f093fb,#f5576c','#43e97b,#38f9d7','#fa709a,#fee140'];
+let idx=0, stars=0, quiz={};
+
+function ss(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('hidden',s.id!==id)); }
+
+function spk(text, lang, cb) {
+  if (!window.speechSynthesis) { if(cb) setTimeout(cb,100); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang=lang; u.rate=0.82; u.pitch=1.1;
+  u.onend = () => { if(cb) setTimeout(cb,120); };
+  u.onerror = () => { if(cb) setTimeout(cb,120); };
+  setTimeout(()=>speechSynthesis.speak(u), 60);
+}
+
+function speakCurrent() {
+  const a = ANIMALS[idx];
+  const el = document.getElementById('lemoji');
+  el.style.animation='none'; void el.offsetWidth; el.style.animation='bounce-in .4s both';
+  spk(a.thai, 'th-TH', ()=>{
+    setTimeout(()=>spk(a.english,'en-US',()=>{
+      if (a.sound !== '...') setTimeout(()=>spk(a.sound,'th-TH'), 200);
+    }), 250);
+  });
+}
+
+function showGrid() {
+  window.speechSynthesis && speechSynthesis.cancel();
+  ss('sg');
+  const ct = document.getElementById('agrid'); ct.innerHTML='';
+  ANIMALS.forEach((a,i)=>{
+    const d = document.createElement('div');
+    d.className = 'a-card btn';
+    const bg = BG_COLORS[i % BG_COLORS.length];
+    d.style.cssText = `background:linear-gradient(135deg,${bg});padding:16px 12px;box-shadow:0 4px 14px rgba(0,0,0,.3);`;
+    d.innerHTML = `
+      <div style="font-size:clamp(48px,14vw,80px);line-height:1;filter:drop-shadow(2px 3px 6px rgba(0,0,0,.2));">${a.emoji}</div>
+      <div style="color:#fff;font-size:clamp(15px,4.5vw,22px);font-weight:900;margin-top:8px;">${a.thai}</div>
+      <div style="color:rgba(255,255,255,.8);font-size:clamp(11px,3.2vw,16px);font-weight:600;margin-top:2px;">${a.english}</div>
+      ${a.sound!=='...'?`<div style="color:rgba(255,255,255,.65);font-size:clamp(10px,2.8vw,14px);margin-top:3px;font-style:italic;">${a.sound}</div>`:''}
+    `;
+    d.addEventListener('click', ()=>startLearn(i));
+    ct.appendChild(d);
+  });
+}
+
+function startLearn(i) {
+  idx=i; ss('sl'); renderLearn();
+  setTimeout(speakCurrent, 400);
+}
+
+function renderLearn() {
+  const a = ANIMALS[idx];
+  const bg = BG_COLORS[idx % BG_COLORS.length];
+  document.getElementById('sl').style.background = `linear-gradient(135deg,${bg})`;
+  document.getElementById('lemoji').textContent = a.emoji;
+  document.getElementById('lthai').textContent = a.thai;
+  document.getElementById('leng').textContent = a.english;
+  document.getElementById('lsoundtxt').textContent = a.sound !== '...' ? a.sound : '(ไม่มีเสียงร้อง)';
+  document.getElementById('lctr').textContent = `${idx+1} / ${ANIMALS.length}`;
+  document.getElementById('bprev').style.opacity = idx===0 ? '.3' : '1';
+  document.getElementById('bnext').style.opacity = idx===ANIMALS.length-1 ? '.3' : '1';
+}
+
+function nextA() { if(idx<ANIMALS.length-1){ idx++; renderLearn(); setTimeout(speakCurrent,300); } }
+function prevA() { if(idx>0){ idx--; renderLearn(); setTimeout(speakCurrent,300); } }
+
+function startQuiz() {
+  const pool = [...ANIMALS].sort(()=>Math.random()-.5).slice(0, 6);
+  quiz = { qs: pool.map(a=>{
+    const w = ANIMALS.filter(x=>x!==a).sort(()=>Math.random()-.5).slice(0,3);
+    return { correct:a, choices:[a,...w].sort(()=>Math.random()-.5) };
+  }), cur:0, score:0, done:false };
+  ss('sq'); renderQuiz();
+}
+
+function renderQuiz() {
+  const q = quiz.qs[quiz.cur];
+  document.getElementById('qctr').textContent = `ข้อ ${quiz.cur+1} / ${quiz.qs.length}`;
+  document.getElementById('qemoji').textContent = q.correct.emoji;
+  document.getElementById('qfb').textContent = '';
+  setTimeout(()=>spk(q.correct.thai,'th-TH'), 300);
+  const ct = document.getElementById('qchoices'); ct.innerHTML='';
+  q.choices.forEach(a=>{
+    const b = document.createElement('button');
+    b.className = 'btn';
+    b.style.cssText=`background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.5);border-radius:14px;padding:14px 8px;font-size:clamp(14px,4.5vw,18px);font-weight:900;color:#fff;font-family:inherit;cursor:pointer;width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;`;
+    b.innerHTML=`<span style="font-size:clamp(28px,8vw,40px);">${a.emoji}</span><span>${a.thai}</span>`;
+    b.addEventListener('click', ()=>checkAns(a===q.correct, b));
+    ct.appendChild(b);
+  });
+  quiz.done = false;
+}
+
+function checkAns(ok, btn) {
+  if (quiz.done) return; quiz.done=true;
+  if (ok) {
+    quiz.score++; stars+=2; document.getElementById('stars').textContent=stars;
+    btn.style.background='rgba(34,197,94,.6)'; btn.style.boxShadow='0 0 0 3px #22c55e';
+    document.getElementById('qfb').textContent='✅ ถูกต้อง! เก่งมาก!';
+    spk('เก่งมากเลย','th-TH');
+  } else {
+    btn.style.opacity='.35';
+    document.getElementById('qfb').textContent='❌ ลองใหม่นะ!';
+    spk('ลองใหม่นะ','th-TH');
+  }
+  setTimeout(()=>{ quiz.cur++; quiz.cur<quiz.qs.length ? renderQuiz() : showResult(); }, 1500);
+}
+
+function showResult() {
+  const pct = Math.round(quiz.score/quiz.qs.length*100);
+  document.getElementById('rstars').textContent = pct>=80?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
+  document.getElementById('rscore').textContent = `ตอบถูก ${quiz.score} จาก ${quiz.qs.length} ข้อ`;
+  ss('sr');
+  spk(pct>=80?'เก่งมากเลย ยอดเยี่ยม':'ลองอีกครั้งนะ','th-TH');
+}
+
+showGrid();
+</script>
+</body>
+</html>

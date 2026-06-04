@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🎵 เพลงเด็ก</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+* { -webkit-tap-highlight-color:transparent; box-sizing:border-box; }
+body { font-family:'Fredoka One','Sarabun',sans-serif; overflow:hidden; height:100dvh; width:100vw; background:#1a1a2e; touch-action:pan-y; }
+.screen { position:absolute; inset:0; display:flex; flex-direction:column; transition:opacity .35s,transform .35s; }
+.screen.hidden { opacity:0; pointer-events:none; transform:scale(.97); }
+.btn { transition:transform .15s; cursor:pointer; user-select:none; }
+.btn:active { transform:scale(0.88)!important; }
+@keyframes bounce-in { 0%{transform:scale(.2) rotate(-10deg);opacity:0}60%{transform:scale(1.15) rotate(5deg)}100%{transform:scale(1) rotate(0);opacity:1} }
+@keyframes pulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.06)} }
+.dot { width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.3);transition:background .2s,transform .2s; }
+.dot.active { background:#fff;transform:scale(1.3); }
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:200;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;">
+  <a href="index.html" style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border-radius:30px;padding:8px 14px;pointer-events:auto;display:flex;align-items:center;border:1.5px solid rgba(255,255,255,.3);text-decoration:none;font-size:18px;">🏠</a>
+</div>
+
+<!-- Song List Screen -->
+<div id="slist" class="screen" style="background:linear-gradient(135deg,#f7971e,#ffd200);">
+  <div style="padding-top:70px;text-align:center;flex-shrink:0;padding-bottom:16px;">
+    <h2 style="color:#fff;font-size:clamp(24px,7vw,36px);font-weight:900;">🎵 เพลงเด็ก</h2>
+    <p style="color:rgba(255,255,255,.8);font-size:clamp(13px,3.8vw,18px);">เลือกเพลงที่ต้องการร้อง</p>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:16px 20px;justify-content:center;">
+
+    <button onclick="loadSong('abc')" class="btn" style="background:rgba(255,255,255,.25);border:3px solid rgba(255,255,255,.6);border-radius:24px;padding:20px;display:flex;align-items:center;gap:16px;">
+      <div style="font-size:clamp(40px,11vw,64px);">🔤</div>
+      <div style="text-align:left;">
+        <div style="color:#fff;font-size:clamp(18px,5.5vw,28px);font-weight:900;">ABC Song</div>
+        <div style="color:rgba(255,255,255,.75);font-size:clamp(13px,3.8vw,18px);">A B C D E F G ...</div>
+      </div>
+    </button>
+
+    <button onclick="loadSong('thai')" class="btn" style="background:rgba(255,255,255,.25);border:3px solid rgba(255,255,255,.6);border-radius:24px;padding:20px;display:flex;align-items:center;gap:16px;">
+      <div style="font-size:clamp(40px,11vw,64px);">🇹🇭</div>
+      <div style="text-align:left;">
+        <div style="color:#fff;font-size:clamp(18px,5.5vw,28px);font-weight:900;">เพลง ก-ฮ</div>
+        <div style="color:rgba(255,255,255,.75);font-size:clamp(13px,3.8vw,18px);">ก ข ค ง จ ...</div>
+      </div>
+    </button>
+
+    <button onclick="loadSong('twinkle')" class="btn" style="background:rgba(255,255,255,.25);border:3px solid rgba(255,255,255,.6);border-radius:24px;padding:20px;display:flex;align-items:center;gap:16px;">
+      <div style="font-size:clamp(40px,11vw,64px);">⭐</div>
+      <div style="text-align:left;">
+        <div style="color:#fff;font-size:clamp(18px,5.5vw,28px);font-weight:900;">Twinkle Twinkle</div>
+        <div style="color:rgba(255,255,255,.75);font-size:clamp(13px,3.8vw,18px);">Twinkle twinkle little star</div>
+      </div>
+    </button>
+
+  </div>
+</div>
+
+<!-- Player Screen -->
+<div id="splayer" class="screen hidden" style="background:linear-gradient(135deg,#667eea,#764ba2);">
+  <div style="padding-top:62px;display:flex;align-items:center;justify-content:space-between;padding-left:16px;padding-right:16px;flex-shrink:0;">
+    <button onclick="exitPlayer()" class="btn" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:48px;height:48px;font-size:22px;color:#fff;display:flex;align-items:center;justify-content:center;">←</button>
+    <div id="stitle" style="color:#fff;font-size:clamp(16px,4.8vw,24px);font-weight:900;"></div>
+    <div style="width:48px;"></div>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:8px;">
+    <div id="sbigchar" style="font-size:clamp(90px,28vw,200px);line-height:1;animation:bounce-in .5s both;filter:drop-shadow(4px 6px 12px rgba(0,0,0,.35));color:#fff;font-weight:900;text-align:center;"></div>
+    <div id="ssub" style="color:rgba(255,255,255,.85);font-size:clamp(18px,5.5vw,32px);font-weight:700;text-align:center;min-height:40px;"></div>
+    <div id="ssub2" style="color:rgba(255,255,255,.6);font-size:clamp(14px,4vw,22px);font-weight:600;text-align:center;min-height:32px;"></div>
+    <!-- Progress dots -->
+    <div id="sdots" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:300px;margin-top:8px;"></div>
+  </div>
+
+  <div style="flex-shrink:0;display:flex;align-items:center;gap:12px;padding:12px 20px 24px;">
+    <button onclick="prevItem()" class="btn" style="background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:50%;width:60px;height:60px;font-size:26px;color:#fff;display:flex;align-items:center;justify-content:center;">◀</button>
+    <button id="playbtn" onclick="togglePlay()" class="btn" style="flex:1;background:rgba(255,255,255,.95);color:#764ba2;border:none;border-radius:20px;padding:16px;font-size:clamp(18px,5.5vw,26px);font-weight:900;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <span id="playbtnicon">▶</span><span id="playbtntxt">เล่น</span>
+    </button>
+    <button onclick="nextItem()" class="btn" style="background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:50%;width:60px;height:60px;font-size:26px;color:#fff;display:flex;align-items:center;justify-content:center;">▶</button>
+  </div>
+</div>
+
+<script>
+// ─────── Song Data ───────
+const SONGS = {
+  abc: {
+    title:'ABC Song 🔤',
+    lang:'en-US',
+    items:[
+      {char:'A',sub:'เอ',sub2:'A for Apple 🍎',note:'C4',dur:0.5},
+      {char:'B',sub:'บี',sub2:'B for Ball ⚽',note:'C4',dur:0.5},
+      {char:'C',sub:'ซี',sub2:'C for Cat 🐱',note:'G4',dur:0.5},
+      {char:'D',sub:'ดี',sub2:'D for Dog 🐶',note:'G4',dur:0.5},
+      {char:'E',sub:'อี',sub2:'E for Egg 🥚',note:'A4',dur:0.5},
+      {char:'F',sub:'เอฟ',sub2:'F for Fish 🐟',note:'A4',dur:0.5},
+      {char:'G',sub:'จี',sub2:'G for Goat 🐐',note:'G4',dur:0.9},
+      {char:'H',sub:'เอช',sub2:'H for Hat 🎩',note:'F4',dur:0.5},
+      {char:'I',sub:'ไอ',sub2:'I for Ice 🧊',note:'F4',dur:0.5},
+      {char:'J',sub:'เจ',sub2:'J for Juice 🧃',note:'E4',dur:0.5},
+      {char:'K',sub:'เค',sub2:'K for Kite 🪁',note:'E4',dur:0.9},
+      {char:'L',sub:'แอล',sub2:'L for Lion 🦁',note:'D4',dur:0.4},
+      {char:'M',sub:'เอ็ม',sub2:'M for Moon 🌙',note:'D4',dur:0.4},
+      {char:'N',sub:'เอ็น',sub2:'N for Nose 👃',note:'E4',dur:0.4},
+      {char:'O',sub:'โอ',sub2:'O for Orange 🍊',note:'D4',dur:0.4},
+      {char:'P',sub:'พี',sub2:'P for Pig 🐷',note:'C4',dur:0.9},
+      {char:'Q',sub:'คิว',sub2:'Q for Queen 👸',note:'G4',dur:0.5},
+      {char:'R',sub:'อาร์',sub2:'R for Rabbit 🐰',note:'G4',dur:0.5},
+      {char:'S',sub:'เอส',sub2:'S for Star ⭐',note:'F4',dur:0.5},
+      {char:'T',sub:'ที',sub2:'T for Train 🚂',note:'F4',dur:0.5},
+      {char:'U',sub:'ยู',sub2:'U for Umbrella ☂️',note:'E4',dur:0.5},
+      {char:'V',sub:'วี',sub2:'V for Van 🚐',note:'E4',dur:0.5},
+      {char:'W',sub:'ดับเบิลยู',sub2:'W for Whale 🐋',note:'D4',dur:0.5},
+      {char:'X',sub:'เอ็กซ์',sub2:'X for Xylophone 🎵',note:'D4',dur:0.9},
+      {char:'Y',sub:'วาย',sub2:'Y for Yak 🐂',note:'C4',dur:0.5},
+      {char:'Z',sub:'แซ็ด',sub2:'Z for Zebra 🦓',note:'E4',dur:0.9},
+    ]
+  },
+  thai: {
+    title:'เพลง ก-ฮ 🇹🇭',
+    lang:'th-TH',
+    items:[
+      {char:'ก',sub:'ก ไก่',sub2:'🐔 ไก่',note:'C4',dur:0.5},
+      {char:'ข',sub:'ข ไข่',sub2:'🥚 ไข่',note:'D4',dur:0.5},
+      {char:'ค',sub:'ค ควาย',sub2:'🐃 ควาย',note:'E4',dur:0.5},
+      {char:'ง',sub:'ง งู',sub2:'🐍 งู',note:'F4',dur:0.5},
+      {char:'จ',sub:'จ จาน',sub2:'🍽️ จาน',note:'G4',dur:0.5},
+      {char:'ช',sub:'ช ช้าง',sub2:'🐘 ช้าง',note:'G4',dur:0.5},
+      {char:'ซ',sub:'ซ โซ่',sub2:'⛓️ โซ่',note:'A4',dur:0.5},
+      {char:'ญ',sub:'ญ หญิง',sub2:'👧 หญิง',note:'A4',dur:0.5},
+      {char:'ด',sub:'ด เด็ก',sub2:'👦 เด็ก',note:'G4',dur:0.9},
+      {char:'ต',sub:'ต เต่า',sub2:'🐢 เต่า',note:'G4',dur:0.5},
+      {char:'ถ',sub:'ถ ถุง',sub2:'👜 ถุง',note:'F4',dur:0.5},
+      {char:'ท',sub:'ท ทหาร',sub2:'💂 ทหาร',note:'E4',dur:0.5},
+      {char:'น',sub:'น หนู',sub2:'🐭 หนู',note:'E4',dur:0.5},
+      {char:'บ',sub:'บ ใบไม้',sub2:'🍃 ใบไม้',note:'D4',dur:0.5},
+      {char:'ป',sub:'ป ปลา',sub2:'🐟 ปลา',note:'D4',dur:0.5},
+      {char:'ผ',sub:'ผ ผึ้ง',sub2:'🐝 ผึ้ง',note:'C4',dur:0.9},
+      {char:'ฝ',sub:'ฝ ฝา',sub2:'🫙 ฝา',note:'G4',dur:0.5},
+      {char:'พ',sub:'พ พาน',sub2:'🏺 พาน',note:'F4',dur:0.5},
+      {char:'ฟ',sub:'ฟ ฟัน',sub2:'🦷 ฟัน',note:'E4',dur:0.5},
+      {char:'ม',sub:'ม ม้า',sub2:'🐴 ม้า',note:'D4',dur:0.9},
+      {char:'ย',sub:'ย ยักษ์',sub2:'👹 ยักษ์',note:'C4',dur:0.5},
+      {char:'ร',sub:'ร เรือ',sub2:'🚢 เรือ',note:'D4',dur:0.5},
+      {char:'ล',sub:'ล ลิง',sub2:'🐒 ลิง',note:'E4',dur:0.5},
+      {char:'ว',sub:'ว แหวน',sub2:'💍 แหวน',note:'F4',dur:0.5},
+      {char:'ส',sub:'ส เสือ',sub2:'🐯 เสือ',note:'G4',dur:0.9},
+      {char:'ห',sub:'ห หีบ',sub2:'📦 หีบ',note:'A4',dur:0.5},
+      {char:'อ',sub:'อ อ่าง',sub2:'🪣 อ่าง',note:'G4',dur:0.5},
+      {char:'ฮ',sub:'ฮ นกฮูก',sub2:'🦉 นกฮูก',note:'C4',dur:0.9},
+    ]
+  },
+  twinkle: {
+    title:'Twinkle Twinkle ⭐',
+    lang:'en-US',
+    items:[
+      {char:'Twinkle',sub:'',sub2:'ดาวกะพริบ',note:'C4',dur:0.5},
+      {char:'twinkle',sub:'',sub2:'',note:'C4',dur:0.5},
+      {char:'little',sub:'',sub2:'',note:'G4',dur:0.5},
+      {char:'star',sub:'',sub2:'⭐',note:'G4',dur:0.5},
+      {char:'How',sub:'',sub2:'',note:'A4',dur:0.5},
+      {char:'I',sub:'',sub2:'',note:'A4',dur:0.5},
+      {char:'wonder',sub:'',sub2:'',note:'G4',dur:0.9},
+      {char:'what',sub:'',sub2:'',note:'F4',dur:0.5},
+      {char:'you',sub:'',sub2:'',note:'F4',dur:0.5},
+      {char:'are',sub:'',sub2:'',note:'E4',dur:0.9},
+      {char:'Up',sub:'',sub2:'',note:'G4',dur:0.5},
+      {char:'above',sub:'',sub2:'',note:'F4',dur:0.5},
+      {char:'the',sub:'',sub2:'',note:'F4',dur:0.5},
+      {char:'world',sub:'',sub2:'',note:'E4',dur:0.5},
+      {char:'so',sub:'',sub2:'',note:'D4',dur:0.5},
+      {char:'high',sub:'',sub2:'🌏',note:'D4',dur:0.9},
+      {char:'Like',sub:'',sub2:'',note:'G4',dur:0.5},
+      {char:'a',sub:'',sub2:'',note:'F4',dur:0.5},
+      {char:'diamond',sub:'',sub2:'',note:'F4',dur:0.5},
+      {char:'in',sub:'',sub2:'',note:'E4',dur:0.5},
+      {char:'the',sub:'',sub2:'',note:'D4',dur:0.5},
+      {char:'sky',sub:'',sub2:'💎',note:'C4',dur:0.9},
+    ]
+  }
+};
+
+const NOTES = { C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00, A4:440.00, B4:493.88, C5:523.25 };
+
+let song=null, curIdx=0, playing=false, autoTimer=null, AC=null;
+
+function initAC() {
+  if (!AC) { try { AC = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} }
+  if (AC && AC.state==='suspended') AC.resume().catch(()=>{});
+}
+
+function playNote(noteName, dur) {
+  initAC();
+  if (!AC) return;
+  try {
+    const freq = NOTES[noteName] || 440;
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    const t = AC.currentTime;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.25, t+0.04);
+    g.gain.setValueAtTime(0.25, t+dur*0.7);
+    g.gain.linearRampToValueAtTime(0, t+dur);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t+dur+0.05);
+  } catch(e){}
+}
+
+function spk(text, lang, cb) {
+  if (!window.speechSynthesis) { if(cb) setTimeout(cb,100); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang=lang; u.rate=0.85; u.pitch=1.1;
+  u.onend = () => { if(cb) setTimeout(cb,100); };
+  u.onerror = () => { if(cb) setTimeout(cb,100); };
+  setTimeout(()=>speechSynthesis.speak(u), 60);
+}
+
+function ss(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('hidden',s.id!==id)); }
+
+function loadSong(key) {
+  song = SONGS[key];
+  curIdx = 0; playing = false;
+  ss('splayer');
+  document.getElementById('stitle').textContent = song.title;
+  renderItem();
+  buildDots();
+}
+
+function exitPlayer() {
+  stopPlay();
+  window.speechSynthesis && speechSynthesis.cancel();
+  ss('slist');
+}
+
+function buildDots() {
+  const ct = document.getElementById('sdots'); ct.innerHTML='';
+  const max = Math.min(song.items.length, 30);
+  for(let i=0;i<max;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===curIdx?' active':'');
+    d.id='dot-'+i; ct.appendChild(d);
+  }
+}
+
+function updateDots() {
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===curIdx));
+}
+
+function renderItem() {
+  const it = song.items[curIdx];
+  const el = document.getElementById('sbigchar');
+  el.style.animation='none'; void el.offsetWidth; el.style.animation='bounce-in .45s both';
+  el.textContent = it.char;
+  document.getElementById('ssub').textContent = it.sub || '';
+  document.getElementById('ssub2').textContent = it.sub2 || '';
+  updateDots();
+}
+
+function speakItem(cb) {
+  const it = song.items[curIdx];
+  playNote(it.note, it.dur);
+  spk(it.char, song.lang, cb);
+}
+
+function togglePlay() {
+  initAC();
+  if (playing) { stopPlay(); }
+  else { playing=true; updatePlayBtn(); advancePlay(); }
+}
+
+function stopPlay() {
+  playing=false; clearTimeout(autoTimer);
+  window.speechSynthesis && speechSynthesis.cancel();
+  updatePlayBtn();
+}
+
+function updatePlayBtn() {
+  document.getElementById('playbtnicon').textContent = playing ? '⏸' : '▶';
+  document.getElementById('playbtntxt').textContent = playing ? 'หยุด' : 'เล่น';
+}
+
+function advancePlay() {
+  if (!playing) return;
+  renderItem();
+  speakItem(()=>{
+    if (!playing) return;
+    autoTimer = setTimeout(()=>{
+      if (!playing) return;
+      if (curIdx < song.items.length-1) { curIdx++; advancePlay(); }
+      else { stopPlay(); curIdx=0; renderItem(); }
+    }, 400);
+  });
+}
+
+function nextItem() {
+  stopPlay();
+  if (curIdx < song.items.length-1) { curIdx++; renderItem(); speakItem(null); }
+}
+
+function prevItem() {
+  stopPlay();
+  if (curIdx > 0) { curIdx--; renderItem(); speakItem(null); }
+}
+
+// iOS audio unlock on touch
+document.addEventListener('touchstart', ()=>initAC(), {once:true});
+</script>
+</body>
+</html>

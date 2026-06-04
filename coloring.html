@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🖌️ ระบายสี</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+* { -webkit-tap-highlight-color:transparent; box-sizing:border-box; }
+body { font-family:'Fredoka One','Sarabun',sans-serif; overflow:hidden; height:100dvh; width:100vw; background:#1a1a2e; touch-action:pan-y; }
+.screen { position:absolute; inset:0; display:flex; flex-direction:column; transition:opacity .35s,transform .35s; }
+.screen.hidden { opacity:0; pointer-events:none; transform:scale(.97); }
+.btn { transition:transform .15s; cursor:pointer; user-select:none; }
+.btn:active { transform:scale(0.88)!important; }
+.pic-card { border-radius:20px; cursor:pointer; background:#fff; border:3px solid rgba(255,255,255,.4); transition:transform .2s,box-shadow .2s; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; gap:6px; }
+.pic-card:active { transform:scale(0.88); }
+.pal-btn { width:clamp(34px,9vw,52px); height:clamp(34px,9vw,52px); border-radius:50%; cursor:pointer; border:3px solid rgba(255,255,255,.4); transition:transform .2s,border-color .2s,box-shadow .2s; flex-shrink:0; }
+.pal-btn:active { transform:scale(0.88); }
+.pal-btn.selected { border-color:#fff; box-shadow:0 0 0 3px rgba(255,255,255,.8),0 4px 16px rgba(0,0,0,.5); transform:scale(1.15); }
+.fillable { cursor:pointer; transition:filter .15s; }
+.fillable:hover { filter:brightness(1.1); }
+svg .fillable { pointer-events: all; }
+svg .nofill { pointer-events: none; }
+@keyframes pop { 0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)} }
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:200;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;">
+  <a href="index.html" style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border-radius:30px;padding:8px 14px;pointer-events:auto;display:flex;align-items:center;border:1.5px solid rgba(255,255,255,.3);text-decoration:none;font-size:18px;">🏠</a>
+</div>
+
+<!-- Picture Picker Screen -->
+<div id="spick" class="screen" style="background:linear-gradient(135deg,#89f7fe,#66a6ff);">
+  <div style="padding-top:62px;text-align:center;flex-shrink:0;padding-bottom:12px;">
+    <h2 style="color:#fff;font-size:clamp(22px,6.5vw,34px);font-weight:900;">🖌️ ระบายสี</h2>
+    <p style="color:rgba(255,255,255,.8);font-size:clamp(13px,3.8vw,17px);">เลือกรูปที่ต้องการระบาย</p>
+  </div>
+  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:10px 16px;overflow-y:auto;align-content:start;">
+
+    <div class="pic-card btn" onclick="openPicture('sun')">
+      <svg viewBox="0 0 200 200" style="width:80%;max-width:140px;">
+        <circle cx="100" cy="100" r="40" fill="#fff" stroke="#333" stroke-width="3"/>
+        <line x1="100" y1="20" x2="100" y2="50" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+        <line x1="100" y1="150" x2="100" y2="180" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+        <line x1="20" y1="100" x2="50" y2="100" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+        <line x1="150" y1="100" x2="180" y2="100" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+        <line x1="43" y1="43" x2="64" y2="64" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+        <line x1="136" y1="136" x2="157" y2="157" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+        <line x1="157" y1="43" x2="136" y2="64" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+        <line x1="43" y1="157" x2="64" y2="136" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div style="color:#333;font-weight:900;font-size:clamp(14px,4vw,18px);">☀️ พระอาทิตย์</div>
+    </div>
+
+    <div class="pic-card btn" onclick="openPicture('cat')">
+      <svg viewBox="0 0 200 200" style="width:80%;max-width:140px;">
+        <circle cx="100" cy="120" r="65" fill="#fff" stroke="#333" stroke-width="3"/>
+        <polygon points="45,80 30,30 70,60" fill="#fff" stroke="#333" stroke-width="3"/>
+        <polygon points="155,80 170,30 130,60" fill="#fff" stroke="#333" stroke-width="3"/>
+        <circle cx="80" cy="110" r="12" fill="#333"/>
+        <circle cx="120" cy="110" r="12" fill="#333"/>
+        <circle cx="83" cy="107" r="4" fill="#fff"/>
+        <circle cx="123" cy="107" r="4" fill="#fff"/>
+        <ellipse cx="100" cy="135" rx="8" ry="6" fill="#ffb6c1" stroke="#333" stroke-width="1.5"/>
+        <line x1="60" y1="130" x2="92" y2="135" stroke="#333" stroke-width="1.5"/>
+        <line x1="140" y1="130" x2="108" y2="135" stroke="#333" stroke-width="1.5"/>
+        <line x1="55" y1="140" x2="92" y2="138" stroke="#333" stroke-width="1.5"/>
+        <line x1="145" y1="140" x2="108" y2="138" stroke="#333" stroke-width="1.5"/>
+      </svg>
+      <div style="color:#333;font-weight:900;font-size:clamp(14px,4vw,18px);">🐱 แมว</div>
+    </div>
+
+    <div class="pic-card btn" onclick="openPicture('house')">
+      <svg viewBox="0 0 200 200" style="width:80%;max-width:140px;">
+        <rect x="30" y="100" width="140" height="90" fill="#fff" stroke="#333" stroke-width="3"/>
+        <polygon points="15,105 100,30 185,105" fill="#fff" stroke="#333" stroke-width="3"/>
+        <rect x="80" y="140" width="40" height="50" fill="#fff" stroke="#333" stroke-width="2.5"/>
+        <rect x="40" y="110" width="35" height="30" rx="3" fill="#fff" stroke="#333" stroke-width="2"/>
+        <rect x="125" y="110" width="35" height="30" rx="3" fill="#fff" stroke="#333" stroke-width="2"/>
+        <line x1="57" y1="110" x2="57" y2="140" stroke="#333" stroke-width="1.5"/>
+        <line x1="40" y1="125" x2="75" y2="125" stroke="#333" stroke-width="1.5"/>
+        <line x1="142" y1="110" x2="142" y2="140" stroke="#333" stroke-width="1.5"/>
+        <line x1="125" y1="125" x2="160" y2="125" stroke="#333" stroke-width="1.5"/>
+      </svg>
+      <div style="color:#333;font-weight:900;font-size:clamp(14px,4vw,18px);">🏠 บ้าน</div>
+    </div>
+
+    <div class="pic-card btn" onclick="openPicture('fish')">
+      <svg viewBox="0 0 200 200" style="width:80%;max-width:140px;">
+        <ellipse cx="95" cy="110" rx="70" ry="45" fill="#fff" stroke="#333" stroke-width="3"/>
+        <polygon points="155,90 190,70 190,150 155,130" fill="#fff" stroke="#333" stroke-width="3"/>
+        <circle cx="50" cy="100" r="8" fill="#333"/>
+        <circle cx="52" cy="98" r="2.5" fill="#fff"/>
+        <path d="M 70,90 Q 100,70 130,90" fill="none" stroke="#333" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <path d="M 70,120 Q 100,140 130,120" fill="none" stroke="#333" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <line x1="100" y1="70" x2="100" y2="150" stroke="#333" stroke-width="1.5" opacity="0.4"/>
+        <ellipse cx="100" cy="80" rx="18" ry="12" fill="#fff" stroke="#333" stroke-width="2"/>
+      </svg>
+      <div style="color:#333;font-weight:900;font-size:clamp(14px,4vw,18px);">🐟 ปลา</div>
+    </div>
+
+    <div class="pic-card btn" onclick="openPicture('flower')">
+      <svg viewBox="0 0 200 200" style="width:80%;max-width:140px;">
+        <rect x="95" y="120" width="10" height="65" rx="5" fill="#fff" stroke="#333" stroke-width="2.5"/>
+        <ellipse cx="70" cy="148" rx="28" ry="12" fill="#fff" stroke="#333" stroke-width="2" transform="rotate(-30 70 148)"/>
+        <ellipse cx="100" cy="75" rx="20" ry="32" fill="#fff" stroke="#333" stroke-width="2.5"/>
+        <ellipse cx="100" cy="75" rx="20" ry="32" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(60 100 100)"/>
+        <ellipse cx="100" cy="75" rx="20" ry="32" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(120 100 100)"/>
+        <ellipse cx="100" cy="75" rx="20" ry="32" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(180 100 100)"/>
+        <ellipse cx="100" cy="75" rx="20" ry="32" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(240 100 100)"/>
+        <ellipse cx="100" cy="75" rx="20" ry="32" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(300 100 100)"/>
+        <circle cx="100" cy="100" r="22" fill="#fff" stroke="#333" stroke-width="3"/>
+      </svg>
+      <div style="color:#333;font-weight:900;font-size:clamp(14px,4vw,18px);">🌸 ดอกไม้</div>
+    </div>
+
+    <div class="pic-card btn" onclick="openPicture('star')">
+      <svg viewBox="0 0 200 200" style="width:80%;max-width:140px;">
+        <polygon points="100,20 120,75 180,75 132,110 152,168 100,135 48,168 68,110 20,75 80,75" fill="#fff" stroke="#333" stroke-width="3"/>
+        <circle cx="100" cy="100" r="25" fill="#fff" stroke="#333" stroke-width="2"/>
+      </svg>
+      <div style="color:#333;font-weight:900;font-size:clamp(14px,4vw,18px);">⭐ ดาว</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Coloring Screen -->
+<div id="scolor" class="screen hidden" style="background:linear-gradient(135deg,#89f7fe,#66a6ff);">
+  <div style="padding-top:62px;display:flex;align-items:center;justify-content:space-between;padding-left:16px;padding-right:16px;flex-shrink:0;padding-bottom:6px;">
+    <button onclick="exitColor()" class="btn" style="background:rgba(255,255,255,.3);border:none;border-radius:50%;width:48px;height:48px;font-size:22px;color:#fff;display:flex;align-items:center;justify-content:center;">←</button>
+    <div id="ctitle" style="color:#fff;font-size:clamp(16px,5vw,24px);font-weight:900;"></div>
+    <button onclick="clearPicture()" class="btn" style="background:rgba(255,255,255,.3);border:none;border-radius:14px;padding:8px 14px;color:#fff;font-size:clamp(13px,3.8vw,16px);font-weight:900;font-family:inherit;">🗑️ ล้าง</button>
+  </div>
+
+  <!-- SVG Canvas -->
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:8px;min-height:0;">
+    <div id="svgwrap" style="background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.25);overflow:hidden;width:100%;max-width:min(calc(100vw - 32px),calc(100dvh - 220px));aspect-ratio:1;"></div>
+  </div>
+
+  <!-- Color Palette -->
+  <div style="flex-shrink:0;padding:10px 8px 16px;">
+    <div style="background:rgba(0,0,0,.3);border-radius:20px;padding:10px 8px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;">
+      <div id="palette"></div>
+    </div>
+    <div style="color:rgba(255,255,255,.7);font-size:clamp(11px,3.2vw,14px);text-align:center;margin-top:6px;">👆 เลือกสี แล้วแตะรูปเพื่อระบาย</div>
+  </div>
+</div>
+
+<script>
+const PAL_COLORS = [
+  {hex:'#e74c3c', name:'แดง'},
+  {hex:'#e67e22', name:'ส้ม'},
+  {hex:'#f1c40f', name:'เหลือง'},
+  {hex:'#27ae60', name:'เขียว'},
+  {hex:'#2980b9', name:'น้ำเงิน'},
+  {hex:'#8e44ad', name:'ม่วง'},
+  {hex:'#e91e63', name:'ชมพู'},
+  {hex:'#795548', name:'น้ำตาล'},
+  {hex:'#2c3e50', name:'ดำ'},
+  {hex:'#ecf0f1', name:'ขาว'},
+];
+
+const PICS = {
+  sun: {
+    title:'☀️ พระอาทิตย์',
+    svg:`<svg viewBox="0 0 300 300" style="width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sky background -->
+  <rect class="fillable" id="sky" x="0" y="0" width="300" height="300" fill="#fff" stroke="none"/>
+  <!-- Rays -->
+  <g class="fillable" id="rays">
+    <ellipse cx="150" cy="40" rx="10" ry="30" fill="#fff" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="150" cy="40" rx="10" ry="30" fill="inherit" stroke="#333" stroke-width="2.5" transform="rotate(45 150 150)"/>
+    <ellipse cx="150" cy="40" rx="10" ry="30" fill="inherit" stroke="#333" stroke-width="2.5" transform="rotate(90 150 150)"/>
+    <ellipse cx="150" cy="40" rx="10" ry="30" fill="inherit" stroke="#333" stroke-width="2.5" transform="rotate(135 150 150)"/>
+    <ellipse cx="150" cy="40" rx="10" ry="30" fill="inherit" stroke="#333" stroke-width="2.5" transform="rotate(180 150 150)"/>
+    <ellipse cx="150" cy="40" rx="10" ry="30" fill="inherit" stroke="#333" stroke-width="2.5" transform="rotate(225 150 150)"/>
+    <ellipse cx="150" cy="40" rx="10" ry="30" fill="inherit" stroke="#333" stroke-width="2.5" transform="rotate(270 150 150)"/>
+    <ellipse cx="150" cy="40" rx="10" ry="30" fill="inherit" stroke="#333" stroke-width="2.5" transform="rotate(315 150 150)"/>
+  </g>
+  <!-- Sun circle -->
+  <circle class="fillable" id="sun" cx="150" cy="150" r="72" fill="#fff" stroke="#333" stroke-width="3.5"/>
+  <!-- Eyes on sun -->
+  <circle class="nofill" cx="128" cy="140" r="7" fill="#333"/>
+  <circle class="nofill" cx="172" cy="140" r="7" fill="#333"/>
+  <path class="nofill" d="M 125,162 Q 150,178 175,162" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+  <!-- Cloud -->
+  <g class="fillable" id="cloud">
+    <ellipse cx="50" cy="65" rx="28" ry="18" fill="#fff" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="72" cy="52" rx="24" ry="17" fill="#fff" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="95" cy="60" rx="22" ry="16" fill="#fff" stroke="#333" stroke-width="2.5"/>
+    <rect x="28" y="65" width="89" height="16" fill="#fff" stroke="none"/>
+  </g>
+</svg>`
+  },
+  cat: {
+    title:'🐱 แมว',
+    svg:`<svg viewBox="0 0 300 300" style="width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
+  <!-- Body -->
+  <ellipse class="fillable" id="body" cx="150" cy="220" rx="85" ry="68" fill="#fff" stroke="#333" stroke-width="3"/>
+  <!-- Tail -->
+  <path class="fillable" id="tail" d="M 220,240 Q 280,200 270,150 Q 265,120 250,130" fill="none" stroke="#333" stroke-width="12" stroke-linecap="round"/>
+  <!-- Head -->
+  <circle class="fillable" id="head" cx="150" cy="130" r="75" fill="#fff" stroke="#333" stroke-width="3"/>
+  <!-- Ears -->
+  <g class="fillable" id="ears">
+    <polygon points="80,90 60,30 115,70" fill="#fff" stroke="#333" stroke-width="3"/>
+    <polygon points="220,90 240,30 185,70" fill="#fff" stroke="#333" stroke-width="3"/>
+  </g>
+  <!-- Inner ears -->
+  <g class="fillable" id="innerears">
+    <polygon points="86,82 72,44 108,68" fill="#fff" stroke="#555" stroke-width="1.5"/>
+    <polygon points="214,82 228,44 192,68" fill="#fff" stroke="#555" stroke-width="1.5"/>
+  </g>
+  <!-- Eyes (not fillable) -->
+  <ellipse class="nofill" cx="120" cy="120" rx="16" ry="18" fill="#2c3e50" stroke="#333" stroke-width="2"/>
+  <ellipse class="nofill" cx="180" cy="120" rx="16" ry="18" fill="#2c3e50" stroke="#333" stroke-width="2"/>
+  <circle class="nofill" cx="125" cy="115" r="5" fill="#fff"/>
+  <circle class="nofill" cx="185" cy="115" r="5" fill="#fff"/>
+  <!-- Nose -->
+  <polygon class="nofill" points="150,148 143,158 157,158" fill="#ff8fab" stroke="#333" stroke-width="1.5"/>
+  <!-- Mouth -->
+  <path class="nofill" d="M 143,158 Q 136,168 130,162" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+  <path class="nofill" d="M 157,158 Q 164,168 170,162" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+  <!-- Whiskers -->
+  <line class="nofill" x1="80" y1="150" x2="140" y2="155" stroke="#333" stroke-width="1.5"/>
+  <line class="nofill" x1="80" y1="160" x2="140" y2="160" stroke="#333" stroke-width="1.5"/>
+  <line class="nofill" x1="220" y1="150" x2="160" y2="155" stroke="#333" stroke-width="1.5"/>
+  <line class="nofill" x1="220" y1="160" x2="160" y2="160" stroke="#333" stroke-width="1.5"/>
+</svg>`
+  },
+  house: {
+    title:'🏠 บ้าน',
+    svg:`<svg viewBox="0 0 300 300" style="width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sky -->
+  <rect class="fillable" id="sky" x="0" y="0" width="300" height="300" fill="#fff" stroke="none"/>
+  <!-- Grass -->
+  <rect class="fillable" id="grass" x="0" y="235" width="300" height="65" rx="0" fill="#fff" stroke="#333" stroke-width="2"/>
+  <!-- Chimney -->
+  <rect class="fillable" id="chimney" x="195" y="85" width="28" height="60" fill="#fff" stroke="#333" stroke-width="3"/>
+  <!-- Walls -->
+  <rect class="fillable" id="wall" x="30" y="150" width="240" height="90" fill="#fff" stroke="#333" stroke-width="3.5"/>
+  <!-- Roof -->
+  <polygon class="fillable" id="roof" points="12,157 150,55 288,157" fill="#fff" stroke="#333" stroke-width="3.5"/>
+  <!-- Door -->
+  <rect class="fillable" id="door" x="123" y="185" width="54" height="55" rx="6" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <!-- Door knob -->
+  <circle class="nofill" cx="169" cy="215" r="4" fill="#333"/>
+  <!-- Left window -->
+  <rect class="fillable" id="winleft" x="46" y="168" width="52" height="44" rx="4" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <line class="nofill" x1="72" y1="168" x2="72" y2="212" stroke="#333" stroke-width="1.5"/>
+  <line class="nofill" x1="46" y1="190" x2="98" y2="190" stroke="#333" stroke-width="1.5"/>
+  <!-- Right window -->
+  <rect class="fillable" id="winright" x="202" y="168" width="52" height="44" rx="4" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <line class="nofill" x1="228" y1="168" x2="228" y2="212" stroke="#333" stroke-width="1.5"/>
+  <line class="nofill" x1="202" y1="190" x2="254" y2="190" stroke="#333" stroke-width="1.5"/>
+  <!-- Sun -->
+  <circle class="fillable" id="sun" cx="50" cy="60" r="32" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <!-- Clouds -->
+  <g class="fillable" id="cloud">
+    <ellipse cx="210" cy="40" rx="26" ry="16" fill="#fff" stroke="#333" stroke-width="2"/>
+    <ellipse cx="232" cy="30" rx="22" ry="15" fill="#fff" stroke="#333" stroke-width="2"/>
+    <ellipse cx="256" cy="38" rx="20" ry="14" fill="#fff" stroke="#333" stroke-width="2"/>
+    <rect x="188" y="40" width="88" height="14" fill="#fff" stroke="none"/>
+  </g>
+</svg>`
+  },
+  fish: {
+    title:'🐟 ปลา',
+    svg:`<svg viewBox="0 0 300 300" style="width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
+  <!-- Water/background -->
+  <rect class="fillable" id="water" x="0" y="0" width="300" height="300" fill="#fff" stroke="none"/>
+  <!-- Bubbles (decorative) -->
+  <circle class="nofill" cx="240" cy="80" r="10" fill="none" stroke="#aaa" stroke-width="1.5"/>
+  <circle class="nofill" cx="260" cy="50" r="6" fill="none" stroke="#aaa" stroke-width="1.5"/>
+  <circle class="nofill" cx="250" cy="30" r="4" fill="none" stroke="#aaa" stroke-width="1.5"/>
+  <!-- Tail fin -->
+  <polygon class="fillable" id="tail" points="230,130 290,80 290,220 230,170" fill="#fff" stroke="#333" stroke-width="3"/>
+  <!-- Bottom fin -->
+  <polygon class="fillable" id="finfbottom" points="120,185 100,240 165,205" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <!-- Top fin -->
+  <polygon class="fillable" id="fintop" points="120,110 110,55 180,95" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <!-- Body -->
+  <ellipse class="fillable" id="body" cx="130" cy="150" rx="115" ry="75" fill="#fff" stroke="#333" stroke-width="3.5"/>
+  <!-- Scales pattern -->
+  <g class="nofill" opacity="0.35">
+    <ellipse cx="155" cy="120" rx="28" ry="18" fill="none" stroke="#333" stroke-width="1.5"/>
+    <ellipse cx="195" cy="130" rx="28" ry="18" fill="none" stroke="#333" stroke-width="1.5"/>
+    <ellipse cx="155" cy="160" rx="28" ry="18" fill="none" stroke="#333" stroke-width="1.5"/>
+    <ellipse cx="195" cy="170" rx="28" ry="18" fill="none" stroke="#333" stroke-width="1.5"/>
+    <ellipse cx="115" cy="140" rx="28" ry="18" fill="none" stroke="#333" stroke-width="1.5"/>
+  </g>
+  <!-- Eye -->
+  <circle class="nofill" cx="60" cy="138" r="16" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <circle class="nofill" cx="60" cy="138" r="9" fill="#2c3e50"/>
+  <circle class="nofill" cx="63" cy="134" r="3" fill="#fff"/>
+  <!-- Mouth -->
+  <path class="nofill" d="M 28,152 Q 20,162 28,168" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+</svg>`
+  },
+  flower: {
+    title:'🌸 ดอกไม้',
+    svg:`<svg viewBox="0 0 300 300" style="width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect class="fillable" id="bg" x="0" y="0" width="300" height="300" fill="#fff" stroke="none"/>
+  <!-- Grass ground -->
+  <ellipse class="fillable" id="ground" cx="150" cy="285" rx="120" ry="25" fill="#fff" stroke="#333" stroke-width="2"/>
+  <!-- Stem -->
+  <path class="fillable" id="stem" d="M 150,290 Q 148,220 150,185" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round"/>
+  <!-- Leaf left -->
+  <path class="fillable" id="leafleft" d="M 143,240 Q 90,210 95,170 Q 130,200 143,240" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <!-- Leaf right -->
+  <path class="fillable" id="leafright" d="M 157,240 Q 210,210 205,170 Q 170,200 157,240" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <!-- Petals (6 petals grouped) -->
+  <g class="fillable" id="petals">
+    <ellipse cx="150" cy="85" rx="22" ry="50" fill="#fff" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="150" cy="85" rx="22" ry="50" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(60 150 145)"/>
+    <ellipse cx="150" cy="85" rx="22" ry="50" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(120 150 145)"/>
+    <ellipse cx="150" cy="85" rx="22" ry="50" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(180 150 145)"/>
+    <ellipse cx="150" cy="85" rx="22" ry="50" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(240 150 145)"/>
+    <ellipse cx="150" cy="85" rx="22" ry="50" fill="#fff" stroke="#333" stroke-width="2.5" transform="rotate(300 150 145)"/>
+  </g>
+  <!-- Center -->
+  <circle class="fillable" id="center" cx="150" cy="145" r="32" fill="#fff" stroke="#333" stroke-width="3"/>
+  <!-- Center dots -->
+  <circle class="nofill" cx="150" cy="138" r="4" fill="#333"/>
+  <circle class="nofill" cx="162" cy="150" r="4" fill="#333"/>
+  <circle class="nofill" cx="138" cy="150" r="4" fill="#333"/>
+  <circle class="nofill" cx="150" cy="152" r="3" fill="#333"/>
+</svg>`
+  },
+  star: {
+    title:'⭐ ดาว',
+    svg:`<svg viewBox="0 0 300 300" style="width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sky background -->
+  <rect class="fillable" id="sky" x="0" y="0" width="300" height="300" fill="#fff" stroke="none"/>
+  <!-- Small stars (decorative) -->
+  <g class="fillable" id="smallstars">
+    <polygon points="40,40 44,52 56,52 47,60 50,72 40,65 30,72 33,60 24,52 36,52" fill="#fff" stroke="#333" stroke-width="1.5"/>
+    <polygon points="260,60 263,70 273,70 265,76 268,86 260,80 252,86 255,76 247,70 257,70" fill="#fff" stroke="#333" stroke-width="1.5"/>
+    <polygon points="50,240 53,250 63,250 55,256 58,266 50,260 42,266 45,256 37,250 47,250" fill="#fff" stroke="#333" stroke-width="1.5"/>
+    <polygon points="265,240 267,248 275,248 269,253 271,261 265,257 259,261 261,253 255,248 263,248" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  </g>
+  <!-- Outer star shape -->
+  <polygon class="fillable" id="star" points="150,18 174,90 252,90 188,136 212,208 150,164 88,208 112,136 48,90 126,90" fill="#fff" stroke="#333" stroke-width="3.5"/>
+  <!-- Inner circle glow area -->
+  <circle class="fillable" id="innerstar" cx="150" cy="138" r="42" fill="#fff" stroke="#333" stroke-width="2.5"/>
+  <!-- Face on star -->
+  <circle class="nofill" cx="138" cy="130" r="7" fill="#333"/>
+  <circle class="nofill" cx="162" cy="130" r="7" fill="#333"/>
+  <circle class="nofill" cx="140" cy="128" r="2.5" fill="#fff"/>
+  <circle class="nofill" cx="164" cy="128" r="2.5" fill="#fff"/>
+  <path class="nofill" d="M 135,150 Q 150,164 165,150" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+</svg>`
+  }
+};
+
+let selColor = '#f1c40f';
+let currentPicKey = null;
+
+function ss(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('hidden',s.id!==id)); }
+
+// Build palette
+(()=>{
+  const pal = document.getElementById('palette');
+  pal.style.cssText='display:flex;flex-wrap:wrap;justify-content:center;gap:8px;';
+  PAL_COLORS.forEach((c,i)=>{
+    const b = document.createElement('div');
+    b.className='pal-btn'+(i===2?' selected':''); // yellow selected by default (index 2)
+    b.style.background = c.hex;
+    b.title = c.name;
+    b.addEventListener('click', ()=>{
+      selColor=c.hex;
+      document.querySelectorAll('.pal-btn').forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected');
+    });
+    pal.appendChild(b);
+  });
+})();
+
+function openPicture(key) {
+  currentPicKey = key;
+  const pic = PICS[key];
+  document.getElementById('ctitle').textContent = pic.title;
+  const wrap = document.getElementById('svgwrap');
+  wrap.innerHTML = pic.svg;
+  // Attach fill events
+  wrap.querySelectorAll('.fillable').forEach(el=>{
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      const target = e.target.closest('.fillable');
+      if (!target) return;
+      target.setAttribute('fill', selColor);
+      // Animate
+      target.style.animation='none'; void target.offsetWidth; target.style.animation='pop .3s ease both';
+    });
+  });
+  ss('scolor');
+}
+
+function clearPicture() {
+  if (!currentPicKey) return;
+  const wrap = document.getElementById('svgwrap');
+  wrap.querySelectorAll('.fillable').forEach(el=>{
+    el.setAttribute('fill','#fff');
+    // for groups reset children too
+    el.querySelectorAll('[fill]').forEach(child=>{
+      if (!child.classList.contains('nofill')) child.setAttribute('fill','#fff');
+    });
+  });
+}
+
+function exitColor() {
+  ss('spick');
+}
+</script>
+</body>
+</html>

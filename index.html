@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>🎓 เรียนรู้อักษรและตัวเลข</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: 'Fredoka One', 'Sarabun', 'Segoe UI', sans-serif;
+  overflow: hidden; height: 100dvh; width: 100vw;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex; flex-direction: column;
+  touch-action: pan-y;
+}
+
+.float  { animation: float  3.2s ease-in-out infinite; }
+.float2 { animation: float2 3.8s ease-in-out .8s infinite; }
+.float3 { animation: float3 4.2s ease-in-out 1.8s infinite; }
+
+@keyframes float  { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-18px)} }
+@keyframes float2 { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-22px)} }
+@keyframes float3 { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-15px)} }
+@keyframes rainbow { 0%{color:#ff6b6b}20%{color:#ffd93d}40%{color:#6bcf7f}60%{color:#4d96ff}80%{color:#c77dff}100%{color:#ff6b6b} }
+@keyframes glow { 0%,100%{box-shadow:0 0 20px rgba(255,255,255,.3)}50%{box-shadow:0 0 35px rgba(255,255,255,.6)} }
+
+.rainbow-text { animation: rainbow 2.5s linear infinite; }
+.btn {
+  transition: transform .2s, box-shadow .2s;
+  cursor: pointer; user-select: none;
+}
+.btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,.3) !important; }
+.btn:active { transform: scale(0.95) !important; }
+
+.card {
+  background: rgba(255,255,255,.08);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255,255,255,.15);
+  border-radius: 28px;
+  padding: 28px;
+  transition: all .3s;
+}
+.card:hover {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.3);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.3);
+}
+</style>
+</head>
+<body>
+
+<!-- Floating decorations -->
+<div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;">
+  <span style="position:absolute;top:4%;left:8%;font-size:38px;"    class="float" >🌟</span>
+  <span style="position:absolute;top:12%;right:9%;font-size:32px;"  class="float2">🎈</span>
+  <span style="position:absolute;top:30%;left:2%;font-size:28px;"   class="float3">✨</span>
+  <span style="position:absolute;bottom:30%;right:4%;font-size:42px;" class="float">🎉</span>
+  <span style="position:absolute;bottom:14%;left:10%;font-size:30px;" class="float2">🌈</span>
+  <span style="position:absolute;top:58%;right:2%;font-size:26px;"  class="float3">⭐</span>
+  <span style="position:absolute;bottom:5%;right:20%;font-size:28px;" class="float">🎊</span>
+  <span style="position:absolute;top:22%;right:26%;font-size:24px;" class="float2">🎵</span>
+  <span style="position:absolute;bottom:40%;left:22%;font-size:22px;" class="float3">🎶</span>
+</div>
+
+<!-- Main content -->
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;position:relative;z-index:10;">
+  
+  <!-- Header -->
+  <div class="float" style="font-size:clamp(88px,26vw,135px);line-height:1;margin-bottom:10px;">🦁</div>
+  <h1 class="rainbow-text" style="font-size:clamp(28px,8vw,52px);font-weight:900;text-align:center;margin-bottom:8px;text-shadow:2px 2px 4px rgba(0,0,0,.3);">
+    เรียนรู้อักษรและตัวเลข
+  </h1>
+  <p style="color:rgba(255,255,255,.7);font-size:clamp(14px,4vw,22px);text-align:center;margin-bottom:40px;line-height:1.5;">
+    🎵 มีเพลง • มีเสียง • สนุกและจำได้! 🎯
+  </p>
+
+  <!-- Selection cards -->
+  <div style="display:flex;flex-direction:column;gap:20px;max-width:550px;width:100%;">
+    
+    <!-- ภาษาไทย -->
+    <a href="thai.html" class="card btn" style="text-decoration:none;display:flex;align-items:center;gap:20px;">
+      <div style="font-size:clamp(48px,12vw,72px);line-height:1;">🇹🇭</div>
+      <div style="flex:1;">
+        <div style="color:#fff;font-size:clamp(22px,6vw,32px);font-weight:900;margin-bottom:4px;">
+          ภาษาไทย
+        </div>
+        <div style="color:rgba(255,255,255,.7);font-size:clamp(13px,3.5vw,18px);">
+          เรียนรู้ ก-ฮ • 44 พยัญชนะ • ฝึกเขียน
+        </div>
+      </div>
+      <div style="color:rgba(255,255,255,.5);font-size:clamp(28px,7vw,38px);">→</div>
+    </a>
+
+    <!-- ภาษาอังกฤษ -->
+    <a href="english.html" class="card btn" style="text-decoration:none;display:flex;align-items:center;gap:20px;">
+      <div style="font-size:clamp(48px,12vw,72px);line-height:1;">🇬🇧</div>
+      <div style="flex:1;">
+        <div style="color:#fff;font-size:clamp(22px,6vw,32px);font-weight:900;margin-bottom:4px;">
+          ภาษาอังกฤษ
+        </div>
+        <div style="color:rgba(255,255,255,.7);font-size:clamp(13px,3.5vw,18px);">
+          เรียนรู้ A-Z • 26 ตัวอักษร • คำศัพท์
+        </div>
+      </div>
+      <div style="color:rgba(255,255,255,.5);font-size:clamp(28px,7vw,38px);">→</div>
+    </a>
+
+    <!-- ตัวเลข -->
+    <a href="numbers.html" class="card btn" style="text-decoration:none;display:flex;align-items:center;gap:20px;">
+      <div style="font-size:clamp(48px,12vw,72px);line-height:1;">🔢</div>
+      <div style="flex:1;">
+        <div style="color:#fff;font-size:clamp(22px,6vw,32px);font-weight:900;margin-bottom:4px;">
+          ตัวเลข 1-10
+        </div>
+        <div style="color:rgba(255,255,255,.7);font-size:clamp(13px,3.5vw,18px);">
+          นับเลข 1-10 • ภาษาไทย • ภาษาอังกฤษ
+        </div>
+      </div>
+      <div style="color:rgba(255,255,255,.5);font-size:clamp(28px,7vw,38px);">→</div>
+    </a>
+
+  </div>
+
+  <!-- Footer info -->
+  <p style="color:rgba(255,255,255,.5);font-size:clamp(11px,3vw,14px);text-align:center;margin-top:30px;">
+    สำหรับเด็ก 3 ปีขึ้นไป • เรียนรู้ด้วยความสนุก 🎉
+  </p>
+
+</div>
+
+</body>
+</html>

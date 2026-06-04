@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+<title>�🇭 เรียนภาษาไทย ก-ฮ</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+body {
+  font-family: 'Fredoka One', 'Sarabun', 'Segoe UI', sans-serif;
+  overflow: hidden; height: 100dvh; width: 100vw;
+  background: #1a1a2e; touch-action: pan-y;
+}
+.screen {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  transition: opacity .35s ease, transform .35s ease;
+}
+.screen.hidden { opacity: 0; pointer-events: none; transform: scale(.97); }
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 640px) {
+  .letter-huge { font-size: clamp(72px, 26vw, 160px) !important; }
+  .emoji-huge  { font-size: clamp(58px, 18vw, 120px) !important; }
+  .btn { min-width: 48px; min-height: 48px; }
+  #btn-prev, #btn-next { width: 64px !important; height: 64px !important; font-size: 26px !important; }
+  .letter-card { border-radius: 12px; }
+  #screen-learn .flex.items-center.gap-3 { gap: 10px !important; padding-left: 16px !important; padding-right: 16px !important; }
+  #screen-learn button[onclick="onLetterTap()"] { padding: 16px !important; font-size: clamp(16px, 5vw, 22px) !important; }
+  #learn-word { font-size: clamp(24px, 7vw, 48px) !important; margin-top: 8px !important; }
+  #autoplay-btn { padding: 10px 18px !important; font-size: 16px !important; min-width: 92px !important; }
+  button[onclick="exitLearn()"] { width: 52px !important; height: 52px !important; font-size: 24px !important; }
+}
+@media (max-width: 380px) {
+  .letter-huge { font-size: clamp(64px, 24vw, 140px) !important; }
+  .emoji-huge  { font-size: clamp(50px, 16vw, 100px) !important; }
+  #btn-prev, #btn-next { width: 56px !important; height: 56px !important; font-size: 24px !important; }
+  #screen-learn .flex.items-center.gap-3 { gap: 8px !important; }
+  #autoplay-btn { padding: 8px 14px !important; font-size: 14px !important; min-width: 80px !important; }
+  button[onclick="exitLearn()"] { width: 46px !important; height: 46px !important; font-size: 20px !important; }
+}
+
+
+@keyframes float      { 0%,100%{transform:translateY(0)rotate(-3deg)}50%{transform:translateY(-18px)rotate(3deg)} }
+@keyframes float2     { 0%,100%{transform:translateY(0)rotate(2deg)}50%{transform:translateY(-14px)rotate(-2deg)} }
+@keyframes float3     { 0%,100%{transform:translateY(0)rotate(-1deg)}50%{transform:translateY(-10px)rotate(1deg)} }
+@keyframes bounce-in  { 0%{transform:scale(0)rotate(-15deg);opacity:0}55%{transform:scale(1.18)rotate(6deg);opacity:1}75%{transform:scale(.94)rotate(-2deg)}100%{transform:scale(1)rotate(0)} }
+@keyframes slide-up   { from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1} }
+@keyframes wiggle     { 0%,100%{transform:rotate(0)scale(1)}25%{transform:rotate(-12deg)scale(1.12)}75%{transform:rotate(12deg)scale(1.12)} }
+@keyframes shake      { 0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(14px)}60%{transform:translateX(-9px)}80%{transform:translateX(9px)} }
+@keyframes rainbow    { 0%{color:#ff6b6b}20%{color:#feca57}40%{color:#48dbfb}60%{color:#ff9ff3}80%{color:#54a0ff}100%{color:#ff6b6b} }
+@keyframes pulse-ring { 0%,100%{box-shadow:0 0 0 0 rgba(255,220,80,.7)}50%{box-shadow:0 0 0 14px rgba(255,220,80,0)} }
+@keyframes pop-star   { 0%{transform:scale(1)}45%{transform:scale(1.7);filter:brightness(1.4)}100%{transform:scale(1)} }
+@keyframes confetti-fall { 0%{transform:translateY(-30px)rotate(0deg);opacity:1}100%{transform:translateY(105vh)rotate(720deg);opacity:.2} }
+@keyframes star-rise  { 0%{transform:translateY(0)scale(1);opacity:1}100%{transform:translateY(-72px)scale(1.3);opacity:0} }
+@keyframes note-fly   { 0%{transform:translateY(0)rotate(0deg);opacity:1}100%{transform:translateY(-90px)rotate(30deg);opacity:0} }
+@keyframes music-bar  { 0%,100%{height:5px}50%{height:20px} }
+@keyframes glow-border{ 0%,100%{box-shadow:0 0 8px 2px rgba(255,220,80,.4)}50%{box-shadow:0 0 22px 6px rgba(255,220,80,.85)} }
+@keyframes speaker-pulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.18)} }
+
+.float        { animation: float  3.2s ease-in-out infinite; }
+.float2       { animation: float2 3.8s ease-in-out .8s infinite; }
+.float3       { animation: float3 4.2s ease-in-out 1.8s infinite; }
+.bounce-in    { animation: bounce-in .55s cubic-bezier(.36,.07,.19,.97) both; }
+.slide-up     { animation: slide-up .4s ease-out both; }
+.wiggle       { animation: wiggle .5s ease-in-out; }
+.shake        { animation: shake  .5s ease-in-out; }
+.rainbow-text { animation: rainbow 2.5s linear infinite; }
+.pulse-ring   { animation: pulse-ring 2s ease-in-out infinite; }
+.glow-border  { animation: glow-border 1.8s ease-in-out infinite; }
+
+.grid-scroll { overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.grid-scroll::-webkit-scrollbar { display:none; }
+
+.letter-card {
+  aspect-ratio:1; border-radius:16px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; user-select:none; transition:transform .18s,box-shadow .18s;
+  position:relative; overflow:hidden;
+}
+.letter-card:hover  { transform:scale(1.07) rotate(2deg); }
+.letter-card:active { transform:scale(0.88); }
+
+.letter-huge { font-size:clamp(88px,30vw,210px); font-weight:900; line-height:1; text-shadow:4px 4px 0 rgba(0,0,0,.18); }
+.emoji-huge  { font-size:clamp(68px,20vw,155px); line-height:1; filter:drop-shadow(3px 4px 8px rgba(0,0,0,.22)); }
+
+.btn { transition:transform .13s; cursor:pointer; user-select:none; }
+.btn:active { transform:scale(0.88) !important; }
+
+.choice { transition:transform .13s,background .25s; cursor:pointer; user-select:none; border-radius:20px; }
+.choice:active { transform:scale(0.85); }
+
+.confetti-bit { position:fixed; pointer-events:none; z-index:9999; border-radius:3px; animation:confetti-fall linear forwards; }
+.note-bit     { position:fixed; pointer-events:none; z-index:9998; animation:note-fly ease-out forwards; }
+.reward-star  { position:fixed; pointer-events:none; z-index:9998; animation:star-rise .9s ease-out forwards; }
+
+.music-bar { width:4px; border-radius:4px; background:rgba(255,255,255,.85); display:inline-block; vertical-align:bottom; }
+.music-bar:nth-child(1){animation:music-bar .6s ease-in-out infinite;}
+.music-bar:nth-child(2){animation:music-bar .6s ease-in-out .15s infinite;}
+.music-bar:nth-child(3){animation:music-bar .6s ease-in-out .30s infinite;}
+.music-bar:nth-child(4){animation:music-bar .6s ease-in-out .45s infinite;}
+.bar-paused { animation-play-state:paused !important; height:5px !important; }
+
+#learn-swipe { position:absolute; inset:0; z-index:2; }
+.prog-fill   { transition:width .45s ease; }
+.spk-anim    { display:inline-block; animation:speaker-pulse 1.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<!-- CONTAINERS -->
+<div id="confetti" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;"></div>
+<div id="notes"    style="position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden;"></div>
+
+<!-- ── HUD ── -->
+<div id="hud" style="position:fixed;top:0;left:0;right:0;z-index:200;
+     padding:8px 12px;pointer-events:none;display:flex;
+     flex-direction:row;align-items:center;justify-content:space-between;">
+
+  <div style="display:flex;align-items:center;gap:8px;">
+    <!-- Home button -->
+    <a href="index.html" style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border-radius:30px;
+                padding:8px 14px;pointer-events:auto;display:flex;align-items:center;gap:5px;
+                border:1.5px solid rgba(255,255,255,.3);text-decoration:none;transition:transform .2s;">
+      <span style="font-size:18px;">🏠</span>
+      <span style="color:#fff;font-size:13px;font-weight:700;">หน้าแรก</span>
+    </a>
+
+    <!-- Stars -->
+    <div style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border-radius:30px;
+                padding:5px 14px;pointer-events:auto;display:flex;align-items:center;gap:5px;
+                border:1.5px solid rgba(255,220,80,.4);">
+      <span style="font-size:18px;">⭐</span>
+      <span id="hud-stars" style="color:#fcd34d;font-weight:900;font-size:17px;min-width:22px;">0</span>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:8px;">
+    <!-- BGM control -->
+    <div onclick="toggleBGM()" style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
+         border-radius:30px;padding:5px 14px;pointer-events:auto;cursor:pointer;
+         display:flex;align-items:center;gap:7px;border:1.5px solid rgba(255,255,255,.2);">
+      <div id="mbars" style="display:flex;align-items:flex-end;gap:2px;height:20px;">
+        <div class="music-bar" style="height:10px;"></div>
+        <div class="music-bar" style="height:16px;"></div>
+        <div class="music-bar" style="height:8px;"></div>
+        <div class="music-bar" style="height:14px;"></div>
+      </div>
+      <span id="mlabel" style="color:#fff;font-size:13px;font-weight:700;">เพลง</span>
+    </div>
+
+    <!-- SFX control -->
+    <div onclick="toggleSFX()" style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
+         border-radius:30px;padding:5px 14px;pointer-events:auto;cursor:pointer;
+         display:flex;align-items:center;gap:5px;border:1.5px solid rgba(255,255,255,.2);">
+      <span id="sfx-icon" style="font-size:18px;">🔊</span>
+      <span style="color:#fff;font-size:13px;font-weight:700;">เสียง</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 1 — WELCOME (HIDDEN for Thai-only mode)
+════════════════════════════════════════ -->
+<div id="screen-welcome" class="screen hidden"
+     style="background:linear-gradient(145deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);">
+  <div class="flex-1 flex flex-col items-center justify-center px-5 relative z-10">
+    <div class="float" style="font-size:clamp(88px,26vw,135px);line-height:1;margin-bottom:2px;">🇹🇭</div>
+    <h1 class="rainbow-text" style="font-size:clamp(24px,7vw,44px);font-weight:900;text-align:center;margin-bottom:2px;">
+      เรียนภาษาไทย
+    </h1>
+    <p style="color:rgba(255,255,255,.65);font-size:clamp(13px,3.8vw,20px);text-align:center;margin-bottom:20px;">
+      🎵 ก-ฮ • 44 พยัญชนะ • สนุกและจำได้! 🎯
+    </p>
+
+    <div class="flex flex-col gap-3 w-full" style="max-width:310px;">
+      <button onclick="startMode('thai')" class="btn glow-border"
+        style="background:linear-gradient(135deg,#ff6348,#ff4757);color:#fff;border:none;
+               border-radius:24px;padding:17px 20px;font-size:clamp(19px,5.2vw,27px);
+               font-weight:900;font-family:inherit;box-shadow:0 8px 24px rgba(255,71,87,.5);
+               display:flex;align-items:center;justify-content:center;gap:10px;">
+        🇹🇭 &nbsp;ก – ฮ &nbsp;ภาษาไทย
+      </button>
+      <button onclick="startMode('english')" class="btn"
+        style="background:linear-gradient(135deg,#4c6ef5,#7950f2);color:#fff;border:none;
+               border-radius:24px;padding:17px 20px;font-size:clamp(19px,5.2vw,27px);
+               font-weight:900;font-family:inherit;box-shadow:0 8px 24px rgba(124,80,242,.5);
+               display:flex;align-items:center;justify-content:center;gap:10px;">
+        🔤 &nbsp;A – Z &nbsp;English
+      </button>
+      <button onclick="startMode('both')" class="btn"
+        style="background:linear-gradient(135deg,#20bf6b,#01a3a4);color:#fff;border:none;
+               border-radius:24px;padding:13px 20px;font-size:clamp(16px,4.2vw,21px);
+               font-weight:900;font-family:inherit;box-shadow:0 8px 24px rgba(32,191,107,.4);
+               display:flex;align-items:center;justify-content:center;gap:10px;">
+        🌟 &nbsp;เรียนทั้งสองภาษา!
+      </button>
+    </div>
+
+    <p style="color:rgba(255,255,255,.38);font-size:12px;margin-top:16px;text-align:center;">
+      🔊 กรุณาเปิดเสียงเพื่อประสบการณ์ที่ดีที่สุด
+    </p>
+  </div>
+
+  <p style="color:rgba(255,255,255,.28);text-align:center;padding:10px;font-size:12px;flex-shrink:0;">
+    🎯 ออกแบบสำหรับเด็กอายุ 3+ ปี
+  </p>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 2 — GRID
+════════════════════════════════════════ -->
+<div id="screen-grid" class="screen hidden">
+  <div class="flex items-center justify-between px-4"
+       style="padding-top:56px;padding-bottom:4px;flex-shrink:0;">
+    <button onclick="goHome()" class="btn"
+      style="background:rgba(255,255,255,.2);border:none;border-radius:50%;
+             width:44px;height:44px;font-size:20px;color:#fff;
+             display:flex;align-items:center;justify-content:center;">←</button>
+    <h2 id="grid-title" style="color:#fff;font-size:clamp(17px,5vw,24px);font-weight:900;"></h2>
+    <button onclick="playSFX('click');startLearnMode(0)" class="btn"
+      style="background:rgba(255,255,255,.2);border:none;border-radius:20px;
+             padding:7px 14px;color:#fff;font-size:13px;font-weight:700;font-family:inherit;">
+      📖 เรียน
+    </button>
+  </div>
+
+  <p id="grid-sub" style="color:rgba(255,255,255,.65);text-align:center;
+     font-size:clamp(12px,3.2vw,15px);padding:0 10px 5px;flex-shrink:0;"></p>
+
+  <div id="letters-grid" class="grid-scroll flex-1 px-3 pb-2"
+       style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px;align-content:start;"></div>
+
+  <div class="flex gap-2 px-4 pb-4" style="flex-shrink:0;">
+    <button onclick="startLearnMode(0)" class="btn flex-1"
+      style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.4);
+             border-radius:16px;padding:13px;font-size:clamp(13px,3.8vw,17px);
+             font-weight:900;font-family:inherit;">📖 เรียน</button>
+    <button onclick="startWriting(0)" class="btn flex-1"
+      style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.4);
+             border-radius:16px;padding:13px;font-size:clamp(13px,3.8vw,17px);
+             font-weight:900;font-family:inherit;">✍️ หัดเขียน</button>
+    <button onclick="startQuiz()" class="btn flex-1"
+      style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.4);
+             border-radius:16px;padding:13px;font-size:clamp(13px,3.8vw,17px);
+             font-weight:900;font-family:inherit;">🎮 ทดสอบ</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 3 — LEARN
+════════════════════════════════════════ -->
+<div id="screen-learn" class="screen hidden">
+  <div id="learn-swipe"></div>
+
+  <div class="flex items-center justify-between px-4"
+       style="padding-top:56px;padding-bottom:8px;position:relative;z-index:3;flex-shrink:0;">
+    <button onclick="exitLearn()" class="btn"
+      style="background:rgba(255,255,255,.22);border:none;border-radius:50%;
+             width:48px;height:48px;font-size:22px;color:#fff;
+             display:flex;align-items:center;justify-content:center;
+             box-shadow:0 2px 8px rgba(0,0,0,.12);">←</button>
+    <div id="learn-dots" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:50%;"></div>
+    <button id="autoplay-btn" onclick="toggleAutoPlay()" class="btn"
+      style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.35);border-radius:24px;
+             padding:9px 16px;font-size:15px;color:#fff;font-weight:800;font-family:inherit;
+             box-shadow:0 2px 8px rgba(0,0,0,.12);min-width:88px;">
+      ▶️ Auto
+    </button>
+  </div>
+
+  <div class="flex-1 flex flex-col items-center justify-center"
+       style="position:relative;z-index:3;padding:8px 20px;">
+    <p id="learn-counter" style="color:rgba(255,255,255,.65);font-size:clamp(12px,3.5vw,16px);margin-bottom:6px;font-weight:700;"></p>
+    <div id="learn-letter" class="letter-huge"
+         style="color:#fff;cursor:pointer;text-align:center;user-select:none;" onclick="onLetterTap()"></div>
+    <div id="learn-emoji" class="emoji-huge float"
+         style="cursor:pointer;text-align:center;margin:8px 0;user-select:none;" onclick="onLetterTap()"></div>
+    <div id="learn-word"
+         style="color:#fff;font-size:clamp(24px,7vw,48px);font-weight:900;
+                text-align:center;text-shadow:2px 2px 5px rgba(0,0,0,.3);margin-top:6px;"></div>
+    <p style="color:rgba(255,255,255,.55);font-size:clamp(12px,3vw,14px);margin-top:10px;line-height:1.4;text-align:center;padding:0 10px;">
+      👆 แตะตัวอักษรหรือรูปภาพเพื่อฟังเสียง<br class="sm:hidden">&nbsp;|&nbsp; ← ปัด →
+    </p>
+  </div>
+
+  <div class="flex items-center gap-3 px-5 pb-5"
+       style="position:relative;z-index:3;flex-shrink:0;padding-bottom:max(env(safe-area-inset-bottom, 20px), 20px);">
+    <button onclick="prevLetter()" id="btn-prev" class="btn"
+      style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.45);
+             border-radius:50%;width:70px;height:70px;flex-shrink:0;
+             font-size:28px;color:#fff;display:flex;align-items:center;justify-content:center;
+             box-shadow:0 4px 12px rgba(0,0,0,.15);">◀</button>
+    <button onclick="onLetterTap()" class="btn flex-1 pulse-ring"
+      style="background:rgba(255,255,255,.28);border:3px solid rgba(255,255,255,.65);
+             border-radius:22px;padding:18px 14px;font-size:clamp(16px,5vw,22px);
+             color:#fff;font-weight:900;font-family:inherit;
+             box-shadow:0 4px 16px rgba(0,0,0,.2);min-height:70px;">
+      <span class="spk-anim">🔊</span> ฟังเสียง
+    </button>
+    <button onclick="nextLetter()" id="btn-next" class="btn"
+      style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.45);
+             border-radius:50%;width:70px;height:70px;flex-shrink:0;
+             font-size:28px;color:#fff;display:flex;align-items:center;justify-content:center;
+             box-shadow:0 4px 12px rgba(0,0,0,.15);">▶</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 4 — QUIZ
+════════════════════════════════════════ -->
+<div id="screen-quiz" class="screen hidden"
+     style="background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);">
+  <div class="flex items-center justify-between px-4"
+       style="padding-top:56px;padding-bottom:4px;flex-shrink:0;">
+    <button onclick="exitQuiz()" class="btn"
+      style="background:rgba(255,255,255,.25);border:none;border-radius:50%;
+             width:42px;height:42px;font-size:19px;color:#fff;
+             display:flex;align-items:center;justify-content:center;">✕</button>
+    <div style="text-align:center;">
+      <div id="quiz-prog-text" style="color:#fff;font-size:clamp(12px,3.2vw,15px);font-weight:700;"></div>
+      <div style="background:rgba(255,255,255,.3);border-radius:10px;height:6px;width:140px;margin-top:3px;">
+        <div id="quiz-prog-bar" class="prog-fill"
+             style="background:#fff;height:6px;border-radius:10px;width:10%;"></div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.25);border-radius:20px;padding:5px 12px;
+                display:flex;align-items:center;gap:4px;">
+      <span style="font-size:17px;">⭐</span>
+      <span id="quiz-stars" style="color:#fff;font-weight:900;font-size:16px;">0</span>
+    </div>
+  </div>
+
+  <div class="flex-1 flex flex-col items-center justify-center px-4">
+    <p style="color:rgba(255,255,255,.92);font-size:clamp(13px,4.2vw,19px);
+              font-weight:700;margin-bottom:4px;text-align:center;">
+      🤔 ตัวอักษรนี้คือรูปอะไรนะ? &nbsp;<span style="font-size:13px;opacity:.7;">(แตะตัวอักษรเพื่อฟัง)</span>
+    </p>
+    <div id="quiz-letter"
+         style="font-size:clamp(95px,36vw,200px);color:#fff;font-weight:900;
+                text-shadow:4px 4px 0 rgba(0,0,0,.18);line-height:1;margin-bottom:12px;cursor:pointer;"
+         onclick="speakQuizLetter()"></div>
+    <div id="quiz-choices"
+         style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:370px;"></div>
+  </div>
+
+  <p id="quiz-score-txt"
+     style="color:rgba(255,255,255,.75);text-align:center;font-size:13px;
+            font-weight:700;padding-bottom:14px;flex-shrink:0;"></p>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 5 — RESULT
+════════════════════════════════════════ -->
+<div id="screen-result" class="screen hidden"
+     style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);">
+  <div class="flex-1 flex flex-col items-center justify-center px-6">
+    <div class="float" style="font-size:clamp(88px,26vw,135px);line-height:1;">🏆</div>
+    <h1 style="color:#fff;font-size:clamp(26px,8.5vw,50px);font-weight:900;
+               text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.2);margin:5px 0;">
+      เก่งมากเลย! 🎉
+    </h1>
+    <div id="result-stars"  style="font-size:clamp(34px,11vw,58px);margin:5px 0;"></div>
+    <p  id="result-score"   style="color:rgba(255,255,255,.95);font-size:clamp(17px,5vw,26px);font-weight:700;text-align:center;"></p>
+    <p  id="result-message" style="color:rgba(255,255,255,.8);font-size:clamp(13px,3.8vw,19px);text-align:center;margin:5px 0 20px;"></p>
+    <div class="flex flex-col gap-3 w-full" style="max-width:270px;">
+      <button onclick="startQuiz()" class="btn"
+        style="background:rgba(255,255,255,.92);color:#f5576c;border:none;
+               border-radius:20px;padding:14px;font-size:clamp(17px,4.8vw,23px);
+               font-weight:900;font-family:inherit;">🔄 เล่นอีกครั้ง</button>
+      <button onclick="playSFX('click');showScreen('screen-grid')" class="btn"
+        style="background:rgba(255,255,255,.22);color:#fff;border:2px solid rgba(255,255,255,.45);
+               border-radius:20px;padding:12px;font-size:clamp(15px,4.2vw,21px);font-weight:900;font-family:inherit;">
+        📖 กลับไปเรียน</button>
+      <button onclick="goHome()" class="btn"
+        style="background:rgba(255,255,255,.22);color:#fff;border:2px solid rgba(255,255,255,.45);
+               border-radius:20px;padding:12px;font-size:clamp(15px,4.2vw,21px);font-weight:900;font-family:inherit;">
+        🏠 หน้าหลัก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 6 — WRITING PRACTICE
+════════════════════════════════════════ -->
+<div id="screen-writing" class="screen hidden"
+     style="background:linear-gradient(135deg,#f093fb 0%,#a855f7 100%);">
+  <div class="flex items-center justify-between px-4"
+       style="padding-top:56px;padding-bottom:8px;flex-shrink:0;">
+    <button onclick="exitWriting()" class="btn"
+      style="background:rgba(255,255,255,.22);border:none;border-radius:50%;
+             width:48px;height:48px;font-size:22px;color:#fff;
+             display:flex;align-items:center;justify-content:center;
+             box-shadow:0 2px 8px rgba(0,0,0,.12);">←</button>
+    <div style="text-align:center;">
+      <p id="write-counter" style="color:rgba(255,255,255,.9);font-size:clamp(13px,3.5vw,17px);font-weight:700;"></p>
+    </div>
+    <div style="background:rgba(255,255,255,.25);border-radius:20px;padding:5px 12px;
+                display:flex;align-items:center;gap:4px;">
+      <span style="font-size:17px;">⭐</span>
+      <span id="write-stars" style="color:#fff;font-weight:900;font-size:16px;">0</span>
+    </div>
+  </div>
+
+  <div class="flex-1 flex flex-col items-center justify-center px-4"
+       style="position:relative;padding-top:20px;">
+    
+    <!-- ชื่อตัวอักษร + emoji -->
+    <div style="text-align:center;margin-bottom:16px;position:relative;z-index:10;">
+      <div id="write-emoji" style="font-size:clamp(48px,14vw,72px);line-height:1;margin-bottom:6px;"></div>
+      <div id="write-name" style="color:#fff;font-size:clamp(22px,6vw,36px);
+           font-weight:900;text-shadow:2px 2px 8px rgba(0,0,0,.3);
+           font-family:'Sarabun',sans-serif;"></div>
+      <p style="color:rgba(255,255,255,.75);font-size:clamp(12px,3.2vw,15px);
+                margin-top:4px;font-weight:600;">👇 เขียนตามเส้นประด้านล่าง</p>
+    </div>
+    
+    <!-- Container สำหรับ Canvas -->
+    <div style="position:relative;display:inline-block;">      
+      <!-- Canvas ชั้นล่าง: เส้นประ (background) -->
+      <canvas id="guide-layer"
+              style="position:absolute;top:0;left:0;border-radius:24px;
+                     pointer-events:none;max-width:420px;width:90vw;"></canvas>
+      
+      <!-- Canvas ชั้นบน: พื้นที่วาด (transparent) -->
+      <canvas id="write-canvas"
+              style="position:relative;background:transparent;border-radius:24px;
+                     box-shadow:0 8px 24px rgba(0,0,0,.15);touch-action:none;
+                     cursor:crosshair;max-width:420px;width:90vw;"></canvas>
+    </div>
+    
+    <p style="color:rgba(255,255,255,.85);font-size:clamp(12px,3.2vw,14px);
+              margin-top:12px;text-align:center;font-weight:600;">
+      ✍️ ใช้นิ้วหรือปากกาวาดตามเส้นลูกศร
+    </p>
+  </div>
+
+  <div class="flex gap-3 px-4 pb-5" style="flex-shrink:0;padding-bottom:max(env(safe-area-inset-bottom, 20px), 20px);">
+    <button onclick="clearCanvas()" class="btn"
+      style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.45);
+             border-radius:20px;padding:14px 18px;font-size:clamp(15px,4.2vw,20px);
+             color:#fff;font-weight:900;font-family:inherit;flex:1;">
+      🗑️ ลบ</button>
+    <button onclick="checkWriting()" class="btn glow-border"
+      style="background:rgba(255,220,80,.85);border:3px solid rgba(255,255,255,.8);
+             border-radius:20px;padding:14px 18px;font-size:clamp(15px,4.2vw,20px);
+             color:#8b4513;font-weight:900;font-family:inherit;flex:2;">
+      ✅ ตรวจ</button>
+    <button onclick="nextWritingLetter()" id="btn-next-write" class="btn"
+      style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.45);
+             border-radius:20px;padding:14px 18px;font-size:clamp(15px,4.2vw,20px);
+             color:#fff;font-weight:900;font-family:inherit;flex:1;">
+      ถัดไป →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════ -->
+<script>
+/* ──────────────────────────────────────────────
+   DATA
+────────────────────────────────────────────── */
+const THAI = [
+  // letter | name = ชื่อพยัญชนะ (TTS ขั้น1) | word = คำประกอบ (TTS ขั้น2)
+  {letter:'ก',name:'กอ', word:'ไก่',      emoji:'🐔', reading:'กอ ไก่'},
+  {letter:'ข',name:'ขอ', word:'ไข่',      emoji:'🥚', reading:'ขอ ไข่'},
+  {letter:'ฃ',name:'ขอ', word:'ขวด',      emoji:'🍶', reading:'ขอ ขวด'},
+  {letter:'ค',name:'คอ', word:'ควาย',     emoji:'🐃', reading:'คอ ควาย'},
+  {letter:'ฅ',name:'คอ', word:'คน',       emoji:'🧑', reading:'คอ คน'},
+  {letter:'ฆ',name:'คอ', word:'ระฆัง',    emoji:'🔔', reading:'คอ ระฆัง'},
+  {letter:'ง',name:'งอ', word:'งู',       emoji:'🐍', reading:'งอ งู'},
+  {letter:'จ',name:'จอ', word:'จาน',      emoji:'🍽️',reading:'จอ จาน'},
+  {letter:'ฉ',name:'ฉอ', word:'ฉิ่ง',     emoji:'🎶', reading:'ฉอ ฉิ่ง'},
+  {letter:'ช',name:'ชอ', word:'ช้าง',     emoji:'🐘', reading:'ชอ ช้าง'},
+  {letter:'ซ',name:'ซอ', word:'โซ่',      emoji:'⛓️',reading:'ซอ โซ่'},
+  {letter:'ฌ',name:'ชอ', word:'เฌอ',      emoji:'🌳', reading:'ชอ เฌอ'},
+  {letter:'ญ',name:'ยอ', word:'หญิง',     emoji:'👩', reading:'ยอ หญิง'},
+  {letter:'ฎ',name:'ดอ', word:'ชฎา',      emoji:'👑', reading:'ดอ ชฎา'},
+  {letter:'ฏ',name:'ตอ', word:'ปฏัก',     emoji:'🗡️',reading:'ตอ ปฏัก'},
+  {letter:'ฐ',name:'ถอ', word:'ฐาน',      emoji:'🏛️',reading:'ถอ ฐาน'},
+  {letter:'ฑ',name:'ทอ', word:'มณโฑ',     emoji:'👸', reading:'ทอ มณโฑ'},
+  {letter:'ฒ',name:'ทอ', word:'ผู้เฒ่า',  emoji:'👴', reading:'ทอ ผู้เฒ่า'},
+  {letter:'ณ',name:'นอ', word:'เณร',      emoji:'🙏', reading:'นอ เณร'},
+  {letter:'ด',name:'ดอ', word:'เด็ก',     emoji:'👦', reading:'ดอ เด็ก'},
+  {letter:'ต',name:'ตอ', word:'เต่า',     emoji:'🐢', reading:'ตอ เต่า'},
+  {letter:'ถ',name:'ถอ', word:'ถุง',      emoji:'👜', reading:'ถอ ถุง'},
+  {letter:'ท',name:'ทอ', word:'ทหาร',     emoji:'💂', reading:'ทอ ทหาร'},
+  {letter:'ธ',name:'ทอ', word:'ธง',       emoji:'🚩', reading:'ทอ ธง'},
+  {letter:'น',name:'นอ', word:'หนู',      emoji:'🐭', reading:'นอ หนู'},
+  {letter:'บ',name:'บอ', word:'ใบไม้',    emoji:'🍃', reading:'บอ ใบไม้'},
+  {letter:'ป',name:'ปอ', word:'ปลา',      emoji:'🐟', reading:'ปอ ปลา'},
+  {letter:'ผ',name:'ผอ', word:'ผึ้ง',     emoji:'🐝', reading:'ผอ ผึ้ง'},
+  {letter:'ฝ',name:'ฝอ', word:'ฝา',       emoji:'🫙', reading:'ฝอ ฝา'},
+  {letter:'พ',name:'พอ', word:'พาน',      emoji:'🥣', reading:'พอ พาน'},
+  {letter:'ฟ',name:'ฟอ', word:'ฟัน',      emoji:'🦷', reading:'ฟอ ฟัน'},
+  {letter:'ภ',name:'พอ', word:'สำเภา',    emoji:'⛵', reading:'พอ สำเภา'},
+  {letter:'ม',name:'มอ', word:'ม้า',      emoji:'🐴', reading:'มอ ม้า'},
+  {letter:'ย',name:'ยอ', word:'ยักษ์',    emoji:'👹', reading:'ยอ ยักษ์'},
+  {letter:'ร',name:'รอ', word:'เรือ',     emoji:'🚢', reading:'รอ เรือ'},
+  {letter:'ล',name:'ลอ', word:'ลิง',      emoji:'🐒', reading:'ลอ ลิง'},
+  {letter:'ว',name:'วอ', word:'แหวน',     emoji:'💍', reading:'วอ แหวน'},
+  {letter:'ศ',name:'สอ', word:'ศาลา',     emoji:'🏯', reading:'สอ ศาลา'},
+  {letter:'ษ',name:'สอ', word:'ฤาษี',     emoji:'🧙', reading:'สอ ฤาษี'},
+  {letter:'ส',name:'สอ', word:'เสือ',     emoji:'🐯', reading:'สอ เสือ'},
+  {letter:'ห',name:'หอ', word:'หีบ',      emoji:'📦', reading:'หอ หีบ'},
+  {letter:'ฬ',name:'ลอ', word:'จุฬา',     emoji:'🪁', reading:'ลอ จุฬา'},
+  {letter:'อ',name:'ออ', word:'อ่าง',     emoji:'🛁', reading:'ออ อ่าง'},
+  {letter:'ฮ',name:'ฮอ', word:'นกฮูก',   emoji:'🦉', reading:'ฮอ นกฮูก'},
+];
+
+const ENG = [
+  {letter:'A',word:'Ant',      thaiWord:'มด',          emoji:'🐜', reading:'A แอ็นท มด'},
+  {letter:'B',word:'Bird',     thaiWord:'นก',          emoji:'🐦', reading:'B เบิร์ด นก'},
+  {letter:'C',word:'Cat',      thaiWord:'แมว',         emoji:'🐱', reading:'C แคท แมว'},
+  {letter:'D',word:'Dog',      thaiWord:'สุนัข',       emoji:'🐶', reading:'D ด็อก สุนัข'},
+  {letter:'E',word:'Egg',      thaiWord:'ไข่',         emoji:'🥚', reading:'E เอ็ก ไข่'},
+  {letter:'F',word:'Flower',   thaiWord:'ดอกไม้',      emoji:'🌸', reading:'F ฟลาวเวอร์ ดอกไม้'},
+  {letter:'G',word:'Goat',     thaiWord:'แพะ',         emoji:'🐐', reading:'G โกท แพะ'},
+  {letter:'H',word:'House',    thaiWord:'บ้าน',        emoji:'🏠', reading:'H เฮาส์ บ้าน'},
+  {letter:'I',word:'Ice Cream',thaiWord:'ไอศกรีม',     emoji:'🍦', reading:'I ไอซ์ครีม ไอศกรีม'},
+  {letter:'J',word:'Jelly',    thaiWord:'เยลลี่',      emoji:'🍮', reading:'J เจลลี่ เยลลี่'},
+  {letter:'K',word:'King',     thaiWord:'พระราชา',     emoji:'👑', reading:'K คิง พระราชา'},
+  {letter:'L',word:'Lion',     thaiWord:'สิงโต',       emoji:'🦁', reading:'L ไลอ้อน สิงโต'},
+  {letter:'M',word:'Man',      thaiWord:'ผู้ชาย',      emoji:'🧑', reading:'M แมน ผู้ชาย'},
+  {letter:'N',word:'Nurse',    thaiWord:'พยาบาล',      emoji:'👩‍⚕️', reading:'N เนิร์ส พยาบาล'},
+  {letter:'O',word:'Ox',       thaiWord:'วัวตัวผู้',         emoji:'🐂', reading:'O อ็อกซ์ วัวตัวผู้'},
+  {letter:'P',word:'Pig',      thaiWord:'หมู',         emoji:'🐖', reading:'P พิก หมู'},
+  {letter:'Q',word:'Queen',    thaiWord:'พระราชินี',   emoji:'👸', reading:'Q ควีน พระราชินี'},
+  {letter:'R',word:'Rabbit',   thaiWord:'กระต่าย',     emoji:'🐇', reading:'R แรบบิท กระต่าย'},
+  {letter:'S',word:'Snake',    thaiWord:'งู',          emoji:'🐍', reading:'S สเนค งู'},
+  {letter:'T',word:'Tiger',    thaiWord:'เสือ',        emoji:'🐯', reading:'T ไทเกอร์ เสือ'},
+  {letter:'U',word:'Umbrella', thaiWord:'ร่ม',         emoji:'☂️',reading:'U อัมเบรลล่า ร่ม'},
+  {letter:'V',word:'Van',      thaiWord:'รถตู้',       emoji:'🚐', reading:'V แวน รถตู้'},
+  {letter:'W',word:'Whale',    thaiWord:'วาฬ',         emoji:'🐋', reading:'W เวล วาฬ'},
+  {letter:'X',word:'Xmas',     thaiWord:'คริสต์มาส',  emoji:'🎄', reading:'X เอ็กซ์มัส คริสต์มาส'},
+  {letter:'Y',word:'Yo-yo',    thaiWord:'โยโย่',       emoji:'🪀', reading:'Y โยโย่ โยโย่'},
+  {letter:'Z',word:'Zebra',    thaiWord:'ม้าลาย',      emoji:'🦓', reading:'Z ซีบร้า ม้าลาย'},
+];
+
+const CARD_COLORS = [
+  '#ff6b6b','#ff8e53','#ffd93d','#6bcb77','#4ecdc4',
+  '#4d96ff','#845ec2','#ff6fc8','#f7b731','#26de81',
+  '#fd9644','#a55eea','#2bcbba','#fc5c65','#45aaf2',
+  '#20bf6b','#e17055','#74b9ff','#fdcb6e','#00cec9',
+];
+
+const LEARN_BG = {
+  thai:    'linear-gradient(145deg,#ff6348 0%,#c0392b 100%)',
+  english: 'linear-gradient(145deg,#4c6ef5 0%,#5f27cd 100%)',
+  both:    'linear-gradient(145deg,#20bf6b 0%,#01a3a4 100%)',
+};
+
+/* ──────────────────────────────────────────────
+   STATE
+────────────────────────────────────────────── */
+const app = {
+  mode:'thai', data:THAI, idx:0,
+  stars:0, learnedSet: new Set(),
+  autoPlay:false, apTimer:null,
+  quiz:{ questions:[], idx:0, score:0, answered:false },
+};
+
+/* ══════════════════════════════════════════════
+   AUDIO ENGINE  ─  100% Web Audio API (no files)
+══════════════════════════════════════════════ */
+let AC = null;
+let bgmOn = true, sfxOn = true;
+let bgmMasterGain = null;
+let bgmSeqTimer   = null;
+let bgmStep       = 0;
+
+// Pentatonic frequencies (Hz) for the BGM melody
+const N = {
+  C4:261.63,D4:293.66,E4:329.63,G4:392.00,A4:440.00,
+  C5:523.25,D5:587.33,E5:659.25,G5:783.99,A5:880.00,
+};
+
+// [freq, noteDuration, pauseAfter] — cheerful loop for kids
+const MELODY = [
+  [N.C4,.20,.06],[N.E4,.20,.06],[N.G4,.20,.06],[N.C5,.35,.14],
+  [N.G4,.16,.04],[N.A4,.16,.04],[N.G4,.22,.10],
+  [N.E4,.20,.06],[N.G4,.20,.06],[N.A4,.20,.06],[N.C5,.28,.12],
+  [N.A4,.16,.04],[N.G4,.16,.04],[N.E4,.22,.10],
+  [N.D4,.16,.04],[N.E4,.16,.04],[N.G4,.16,.04],[N.A4,.16,.04],[N.G4,.28,.14],
+  [N.C4,.16,.04],[N.D4,.16,.04],[N.E4,.16,.04],[N.G4,.16,.04],[N.A4,.16,.04],[N.C5,.35,.20],
+  [N.A4,.16,.04],[N.G4,.16,.04],[N.E4,.16,.04],[N.D4,.22,.10],
+  [N.C4,.40,.35],
+  // Second phrase — higher energy
+  [N.E5,.18,.04],[N.G5,.18,.04],[N.A5,.18,.04],[N.G5,.28,.10],
+  [N.E5,.18,.04],[N.D5,.18,.04],[N.C5,.22,.08],
+  [N.G4,.16,.04],[N.A4,.16,.04],[N.C5,.16,.04],[N.D5,.16,.04],[N.E5,.35,.18],
+  [N.C5,.16,.04],[N.A4,.16,.04],[N.G4,.40,.30],
+];
+
+function initAC() {
+  if (AC) return;
+  AC = new (window.AudioContext || window.webkitAudioContext)();
+  bgmMasterGain = AC.createGain();
+  bgmMasterGain.gain.value = 0.2;
+  bgmMasterGain.connect(AC.destination);
+}
+
+function resumeAC() {
+  initAC();
+  if (AC.state === 'suspended') AC.resume();
+}
+
+/* ── Play a single BGM note (triangle wave — soft & kid-friendly) ── */
+function playBGMNote(freq, dur) {
+  if (!AC || !bgmOn) return;
+  const osc = AC.createOscillator();
+  const env = AC.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(freq, AC.currentTime);
+  env.gain.setValueAtTime(0, AC.currentTime);
+  env.gain.linearRampToValueAtTime(0.75, AC.currentTime + 0.03);
+  env.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
+  osc.connect(env);
+  env.connect(bgmMasterGain);
+  osc.start(AC.currentTime);
+  osc.stop(AC.currentTime + dur + 0.04);
+}
+
+/* ── BGM sequencer loop ── */
+function startBGMSeq() {
+  if (!bgmOn || bgmSeqTimer) return;
+  (function tick() {
+    if (!bgmOn) return;
+    const [freq, dur, gap] = MELODY[bgmStep % MELODY.length];
+    playBGMNote(freq, dur);
+    bgmStep++;
+    bgmSeqTimer = setTimeout(tick, (dur + gap) * 1000);
+  })();
+}
+
+function stopBGMSeq() {
+  clearTimeout(bgmSeqTimer);
+  bgmSeqTimer = null;
+}
+
+function toggleBGM() {
+  resumeAC();
+  bgmOn = !bgmOn;
+  if (bgmOn) startBGMSeq(); else stopBGMSeq();
+  updateMusicUI();
+  playSFX('click');
+}
+
+function updateMusicUI() {
+  document.getElementById('mlabel').textContent = bgmOn ? 'เพลง' : '🎵 ปิด';
+  document.getElementById('mbars').querySelectorAll('.music-bar').forEach(b =>
+    b.classList.toggle('bar-paused', !bgmOn)
+  );
+}
+
+function toggleSFX() {
+  resumeAC();
+  sfxOn = !sfxOn;
+  document.getElementById('sfx-icon').textContent = sfxOn ? '🔊' : '🔇';
+  playSFX('click');
+}
+
+/* ── SFX bank — all synthesized ── */
+function playSFX(type) {
+  if (!AC) return;
+  if (!sfxOn && type !== 'click') return;
+  const t = AC.currentTime;
+
+  if (type === 'click') {
+    // Short pop (always plays so UI feels responsive)
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(720, t);
+    o.frequency.exponentialRampToValueAtTime(400, t + 0.08);
+    g.gain.setValueAtTime(0.3, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t + 0.1);
+  }
+
+  else if (type === 'letter') {
+    // Cheerful boing when letter appears
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(360, t);
+    o.frequency.exponentialRampToValueAtTime(840, t + 0.11);
+    o.frequency.exponentialRampToValueAtTime(640, t + 0.24);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.5, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.27);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t + 0.3);
+    // Add shimmer
+    const o2 = AC.createOscillator(), g2 = AC.createGain();
+    o2.type = 'triangle';
+    o2.frequency.value = 1240;
+    g2.gain.setValueAtTime(0.18, t);
+    g2.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    o2.connect(g2); g2.connect(AC.destination);
+    o2.start(t); o2.stop(t + 0.24);
+  }
+
+  else if (type === 'correct') {
+    // Ascending happy chime  ✓
+    [[0,523],[0.1,659],[0.2,784],[0.32,1047]].forEach(([dt,f]) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = 'triangle';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0, t+dt);
+      g.gain.linearRampToValueAtTime(0.55, t+dt+0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, t+dt+0.34);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t+dt); o.stop(t+dt+0.38);
+    });
+  }
+
+  else if (type === 'wrong') {
+    // Low descending buzz
+    [[0,310],[0.13,230]].forEach(([dt,f]) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = 'sawtooth';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.28, t+dt);
+      g.gain.exponentialRampToValueAtTime(0.001, t+dt+0.22);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t+dt); o.stop(t+dt+0.25);
+    });
+  }
+
+  else if (type === 'star') {
+    // Sparkle ding
+    [0,0.06,0.12].forEach((dt, i) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = 'sine';
+      o.frequency.value = 1100 + i * 400;
+      g.gain.setValueAtTime(0.38, t+dt);
+      g.gain.exponentialRampToValueAtTime(0.001, t+dt+0.2);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t+dt); o.stop(t+dt+0.22);
+    });
+  }
+
+  else if (type === 'fanfare') {
+    // Mini fanfare for result / all-done
+    [[0,523,.25],[.25,659,.25],[.5,784,.25],[.75,1047,.5],
+     [1.0,784,.18],[1.18,880,.18],[1.36,1047,.6]].forEach(([dt,f,dur]) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = 'triangle';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0, t+dt);
+      g.gain.linearRampToValueAtTime(0.5, t+dt+0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, t+dt+dur);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t+dt); o.stop(t+dt+dur+0.05);
+    });
+  }
+
+  else if (type === 'next') {
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(440, t);
+    o.frequency.linearRampToValueAtTime(660, t+0.14);
+    g.gain.setValueAtTime(0.28, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+0.16);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t+0.18);
+  }
+
+  else if (type === 'prev') {
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(660, t);
+    o.frequency.linearRampToValueAtTime(440, t+0.14);
+    g.gain.setValueAtTime(0.28, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+0.16);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t+0.18);
+  }
+}
+
+/* ── Floating music-note visuals ── */
+const NOTE_CHARS = ['🎵','🎶','♪','♫'];
+function spawnNotes(x, y, count = 3) {
+  const ct = document.getElementById('notes');
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'note-bit';
+      el.textContent = NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)];
+      el.style.cssText = `
+        left:${(x||window.innerWidth*.5)+(Math.random()*80-40)}px;
+        top:${(y||window.innerHeight*.4)+(Math.random()*20)}px;
+        font-size:${20+Math.random()*18}px;
+        animation-delay:${i*.08}s;
+        animation-duration:${.9+Math.random()*.4}s;
+      `;
+      ct.appendChild(el);
+      setTimeout(() => el.remove(), 1500);
+    }, i * 70);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   AUDIO SYSTEM — Google Cloud TTS (Pre-generated)
+══════════════════════════════════════════════ */
+const audioCache = new Map();
+let audioContext = null;
+
+function initAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+}
+
+/* Load and cache audio file */
+async function loadAudio(url) {
+  if (audioCache.has(url)) return audioCache.get(url);
+  
+  try {
+    const audio = new Audio(url);
+    audio.preload = 'auto';
+    await new Promise((resolve, reject) => {
+      audio.oncanplaythrough = resolve;
+      audio.onerror = reject;
+      audio.load();
+    });
+    audioCache.set(url, audio);
+    return audio;
+  } catch (err) {
+    console.warn('⚠️ Failed to load audio:', url, err);
+    return null;
+  }
+}
+
+/* Play audio with callback */
+function playAudio(url, onComplete) {
+  initAudioContext();
+  const audio = audioCache.get(url);
+  if (!audio) {
+    console.warn('⚠️ Audio not loaded:', url);
+    if (onComplete) setTimeout(onComplete, 500);
+    return;
+  }
+  
+  audio.currentTime = 0;
+  audio.volume = 1.0;
+  
+  const handleEnded = () => {
+    audio.removeEventListener('ended', handleEnded);
+    if (onComplete) setTimeout(onComplete, 200);
+  };
+  
+  audio.addEventListener('ended', handleEnded);
+  audio.play().catch(err => {
+    console.warn('⚠️ Audio playback failed:', err);
+    audio.removeEventListener('ended', handleEnded);
+    if (onComplete) setTimeout(onComplete, 500);
+  });
+}
+
+/* Stop all playing audio */
+function stopAllAudio() {
+  audioCache.forEach(audio => {
+    if (audio && !audio.paused) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  });
+}
+
+/* Get audio file path for item */
+function getAudioPath(item, type) {
+  const lang = /^[A-Za-z]$/.test(item.letter) ? 'english' : 'thai';
+  
+  if (lang === 'thai') {
+    const code = item.letter.charCodeAt(0).toString(16);
+    return `audio/thai/${code}_${type}.mp3`; // type: 'name' หรือ 'word'
+  } else {
+    const code = item.letter.toLowerCase();
+    return `audio/english/${code}_${type}.mp3`; // type: 'letter', 'word', 'thai'
+  }
+}
+
+/*
+  speakItem — เล่นเสียงจาก Google Cloud TTS files
+    ภาษาไทย:  name.mp3 → word.mp3
+    ภาษาอังกฤษ: letter.mp3 → word.mp3 → thai.mp3
+*/
+function speakItem(item, onComplete) {
+  initAudioContext();
+  const lang = /^[A-Za-z]$/.test(item.letter) ? 'english' : 'thai';
+  
+  if (lang === 'thai') {
+    // เล่น: ชื่อพยัญชนะ → คำ
+    const namePath = getAudioPath(item, 'name');
+    const wordPath = getAudioPath(item, 'word');
+    
+    playAudio(namePath, () => {
+      setTimeout(() => {
+        playAudio(wordPath, () => {
+          if (onComplete) setTimeout(onComplete, 300);
+        });
+      }, 150);
+    });
+  } else {
+    // เล่น: ตัวอักษร → คำอังกฤษ → คำไทย
+    const letterPath = getAudioPath(item, 'letter');
+    const wordPath = getAudioPath(item, 'word');
+    const thaiPath = getAudioPath(item, 'thai');
+    
+    playAudio(letterPath, () => {
+      setTimeout(() => {
+        playAudio(wordPath, () => {
+          setTimeout(() => {
+            playAudio(thaiPath, () => {
+              if (onComplete) setTimeout(onComplete, 400);
+            });
+          }, 100);
+        });
+      }, 100);
+    });
+  }
+}
+
+/* Preload all audio files for current mode */
+async function preloadAudio() {
+  console.log('🎵 Preloading audio files...');
+  const promises = [];
+  
+  for (const item of app.data) {
+    const lang = /^[A-Za-z]$/.test(item.letter) ? 'english' : 'thai';
+    
+    if (lang === 'thai') {
+      promises.push(loadAudio(getAudioPath(item, 'name')));
+      promises.push(loadAudio(getAudioPath(item, 'word')));
+    } else {
+      promises.push(loadAudio(getAudioPath(item, 'letter')));
+      promises.push(loadAudio(getAudioPath(item, 'word')));
+      promises.push(loadAudio(getAudioPath(item, 'thai')));
+    }
+  }
+  
+  await Promise.all(promises);
+  console.log('✅ Audio preloaded:', audioCache.size, 'files');
+}
+
+function getLang(letter) {
+  if (app.mode === 'english') return 'en-US';
+  if (app.mode === 'thai')    return 'th-TH';
+  return /^[A-Za-z]$/.test(letter) ? 'en-US' : 'th-TH';
+}
+
+/* ──────────────────────────────────────────────
+   SCREEN MANAGEMENT
+────────────────────────────────────────────── */
+function showScreen(id) {
+  resumeAC();
+  document.querySelectorAll('.screen').forEach(s =>
+    s.classList.toggle('hidden', s.id !== id)
+  );
+  const hud = document.getElementById('hud');
+  const showHUD = id !== 'screen-welcome';
+  hud.style.display = showHUD ? 'flex' : 'none';
+  if (id !== 'screen-learn' && app.autoPlay) stopAutoPlay();
+  syncStars();
+}
+
+function goHome() {
+  stopAutoPlay(); playSFX('click');
+  showScreen('screen-welcome');
+  stopBGMSeq();
+}
+
+/* ──────────────────────────────────────────────
+   MODE
+────────────────────────────────────────────── */
+function startMode(mode) {
+  resumeAC();
+  playSFX('click');
+  app.mode = mode;
+  app.data = mode === 'thai' ? THAI : mode === 'english' ? ENG : [...THAI,...ENG];
+  app.learnedSet.clear();
+  buildGrid();
+  showScreen('screen-grid');
+  if (!bgmSeqTimer && bgmOn) startBGMSeq();
+  // Preload audio files for selected mode
+  preloadAudio().catch(err => console.warn('⚠️ Audio preload failed:', err));
+}
+
+/* ──────────────────────────────────────────────
+   GRID
+────────────────────────────────────────────── */
+function buildGrid() {
+  const isEn = app.mode==='english', isBoth = app.mode==='both';
+  document.getElementById('screen-grid').style.background =
+    isEn ? 'linear-gradient(145deg,#4c6ef5,#7950f2)'
+    : isBoth ? 'linear-gradient(145deg,#20bf6b,#01a3a4)'
+    : 'linear-gradient(145deg,#ff6348,#ff4757)';
+
+  document.getElementById('grid-title').textContent =
+    isEn ? '🔤 A – Z English' : isBoth ? '🌟 ก–ฮ & A–Z' : '🇹🇭 ก – ฮ';
+  document.getElementById('grid-sub').textContent =
+    `${app.data.length} ตัวอักษร • แตะเพื่อเรียนทีละตัว • ✅ = เรียนแล้ว`;
+
+  const ct = document.getElementById('letters-grid');
+  ct.innerHTML = '';
+  app.data.forEach((item, i) => {
+    const col  = CARD_COLORS[i % CARD_COLORS.length];
+    const done = app.learnedSet.has(i);
+    const card = document.createElement('div');
+    card.className = 'letter-card';
+    card.style.cssText = `background:${col};box-shadow:0 4px 14px ${col}88;
+      ${done ? 'outline:3px solid rgba(255,255,255,.8);' : ''}`;
+    card.innerHTML = `
+      <div style="font-size:clamp(22px,7.5vw,36px);font-weight:900;color:#fff;
+                  text-shadow:2px 2px 4px rgba(0,0,0,.2);line-height:1;">${item.letter}</div>
+      <div style="font-size:clamp(17px,5.5vw,26px);line-height:1.1;">${item.emoji}</div>
+      ${done ? '<div style="position:absolute;top:2px;right:4px;font-size:11px;">✅</div>' : ''}
+    `;
+    card.addEventListener('click', () => { playSFX('click'); startLearnMode(i); });
+    ct.appendChild(card);
+  });
+  syncStars();
+}
+
+/* ──────────────────────────────────────────────
+   LEARN
+────────────────────────────────────────────── */
+function startLearnMode(startIdx = 0) {
+  stopAutoPlay(); // หยุด auto play ก่อนเสมอเมื่อเริ่ม learn mode ใหม่
+  playSFX('click');
+  app.idx = startIdx;
+  document.getElementById('screen-learn').style.background =
+    LEARN_BG[app.mode] || LEARN_BG.thai;
+  renderLearnCard();
+  showScreen('screen-learn');
+  setupSwipe();
+}
+
+function renderLearnCard(skipSpeak = false) {
+  const item = app.data[app.idx];
+  const lEl  = document.getElementById('learn-letter');
+  const eEl  = document.getElementById('learn-emoji');
+
+  lEl.style.animation = 'none'; eEl.style.animation = 'none';
+  void lEl.offsetWidth;
+  lEl.style.animation = 'bounce-in .55s cubic-bezier(.36,.07,.19,.97) both';
+  eEl.style.animation = 'float 3.2s ease-in-out infinite, slide-up .4s ease-out both';
+
+  lEl.textContent = item.letter;
+  eEl.textContent = item.emoji;
+  document.getElementById('learn-word').textContent    = item.word;
+  document.getElementById('learn-counter').textContent =
+    `ตัวที่ ${app.idx+1} จาก ${app.data.length}`;
+
+  renderDots();
+  document.getElementById('btn-prev').style.opacity = app.idx === 0                   ? '0.3' : '1';
+  document.getElementById('btn-next').style.opacity = app.idx === app.data.length - 1 ? '0.3' : '1';
+
+  app.learnedSet.add(app.idx);
+  playSFX('letter');
+
+  if (!skipSpeak) setTimeout(() => {
+    speakItem(item, () => {
+      // หลังอ่านจบ ถ้าเปิด auto-play ให้ไปตัวถัดไปอัตโนมัติ
+      if (app.autoPlay && app.idx < app.data.length - 1) {
+        setTimeout(() => nextLetter(), 800);
+      } else if (app.autoPlay && app.idx === app.data.length - 1) {
+        stopAutoPlay();
+        celebrateAllDone();
+      }
+    });
+    spawnNotes(window.innerWidth*.5, window.innerHeight*.4, 4);
+  }, 380);
+}
+
+function renderDots() {
+  const ct    = document.getElementById('learn-dots');
+  const total = app.data.length;
+  const max   = Math.min(total, 20);
+  const step  = Math.max(1, Math.ceil(total / max));
+  ct.innerHTML = '';
+  for (let i = 0; i < total; i += step) {
+    const d = document.createElement('div');
+    d.style.cssText = `width:9px;height:9px;border-radius:50%;flex-shrink:0;transition:background .3s;
+      background:${i <= app.idx ? '#fff' : 'rgba(255,255,255,.28)'};`;
+    ct.appendChild(d);
+  }
+}
+
+function onLetterTap() {
+  resumeAC();
+  const item = app.data[app.idx];
+  speakItem(item, null); // ไม่ต้องการ callback เมื่อแท็ปเอง
+  playSFX('letter');
+  spawnNotes(window.innerWidth*.5, window.innerHeight*.4, 5);
+  addStar(1);
+  const lEl = document.getElementById('learn-letter');
+  lEl.classList.remove('wiggle'); void lEl.offsetWidth; lEl.classList.add('wiggle');
+  setTimeout(() => lEl.classList.remove('wiggle'), 550);
+}
+
+function nextLetter() {
+  if (app.idx < app.data.length - 1) {
+    stopAutoPlay(); // หยุด auto play ทันทีเมื่อผู้ใช้กดเอง
+    stopAllAudio(); // หยุดเสียงทันที
+    app.idx++; playSFX('next'); 
+    renderLearnCard(); // เล่นเสียงปกติ
+  } else {
+    stopAutoPlay(); celebrateAllDone();
+  }
+}
+
+function prevLetter() {
+  if (app.idx > 0) {
+    stopAutoPlay(); // หยุด auto play ทันทีเมื่อผู้ใช้กดเอง
+    stopAllAudio(); // หยุดเสียงทันที
+    app.idx--; playSFX('prev'); 
+    renderLearnCard(); // เล่นเสียงปกติ
+  }
+}
+
+function exitLearn() {
+  stopAutoPlay(); stopAllAudio(); playSFX('click');
+  buildGrid(); showScreen('screen-grid');
+}
+
+/* ── Auto-play ── */
+function toggleAutoPlay() {
+  playSFX('click');
+  app.autoPlay ? stopAutoPlay() : startAutoPlay();
+}
+function startAutoPlay() {
+  app.autoPlay = true;
+  const btn = document.getElementById('autoplay-btn');
+  btn.textContent = '⏸️ หยุด';
+  btn.style.background = 'rgba(255,220,0,.45)';
+  btn.style.border = '2px solid rgba(255,220,0,.75)';
+  // ไม่ใช้ setInterval อีกต่อไป ให้ TTS callback จัดการ timing เอง
+  // การเล่นต่อจะถูกควบคุมใน renderLearnCard → speakItem callback
+}
+function stopAutoPlay() {
+  app.autoPlay = false;
+  if (app.apTimer) { clearInterval(app.apTimer); app.apTimer = null; }
+  const btn = document.getElementById('autoplay-btn');
+  if (btn) { 
+    btn.textContent = '▶️ Auto'; 
+    btn.style.background = 'rgba(255,255,255,.22)';
+    btn.style.border = '2px solid rgba(255,255,255,.35)';
+  }
+}
+
+/* ──────────────────────────────────────────────
+   QUIZ
+────────────────────────────────────────────── */
+function startQuiz() {
+  playSFX('click');
+  const data = app.data;
+  const pool = [...data].sort(() => Math.random()-.5).slice(0, Math.min(10, data.length));
+  app.quiz.questions = pool.map(item => {
+    const wrong   = data.filter(d => d !== item).sort(() => Math.random()-.5).slice(0, 2);
+    const choices = [item, ...wrong].sort(() => Math.random()-.5);
+    return { item, choices };
+  });
+  app.quiz.idx = 0; app.quiz.score = 0; app.quiz.answered = false;
+  showScreen('screen-quiz');
+  renderQuizQ();
+}
+
+function renderQuizQ() {
+  const q     = app.quiz.questions[app.quiz.idx];
+  const total = app.quiz.questions.length;
+  const cur   = app.quiz.idx + 1;
+
+  document.getElementById('quiz-prog-text').textContent = `ข้อ ${cur} จาก ${total}`;
+  document.getElementById('quiz-prog-bar').style.width  = `${(cur/total)*100}%`;
+  document.getElementById('quiz-score-txt').textContent = `✅ ถูก ${app.quiz.score} ข้อ`;
+  document.getElementById('quiz-stars').textContent     = app.stars;
+
+  const lEl = document.getElementById('quiz-letter');
+  lEl.style.animation = 'none'; void lEl.offsetWidth;
+  lEl.style.animation = 'bounce-in .5s both';
+  lEl.textContent = q.item.letter;
+
+  setTimeout(() => { speakItem(q.item); playSFX('letter'); }, 300);
+
+  const ct = document.getElementById('quiz-choices');
+  ct.innerHTML = '';
+  q.choices.forEach((choice, ci) => {
+    const btn = document.createElement('div');
+    btn.className = 'choice';
+    btn.style.cssText = `
+      background:rgba(255,255,255,.92);padding:10px 4px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      box-shadow:0 6px 18px rgba(0,0,0,.15);
+      animation:slide-up .35s ease-out ${ci*.1}s both;opacity:0;
+    `;
+    btn.innerHTML = `
+      <div style="font-size:clamp(46px,13.5vw,78px);line-height:1;">${choice.emoji}</div>
+      <div style="font-size:clamp(10px,2.8vw,13px);color:#444;font-weight:700;
+                  margin-top:3px;text-align:center;">${choice.word}</div>
+    `;
+    btn.addEventListener('click', () => {
+      if (app.quiz.answered) return;
+      resumeAC();
+      handleAnswer(choice === q.item, btn, ct, q.item);
+    });
+    ct.appendChild(btn);
+  });
+  app.quiz.answered = false;
+}
+
+function speakQuizLetter() {
+  const q = app.quiz.questions[app.quiz.idx];
+  speakItem(q.item);
+  playSFX('letter');
+}
+
+function handleAnswer(correct, btn, container, correctItem) {
+  app.quiz.answered = true;
+  if (correct) {
+    btn.style.background = '#51cf66';
+    btn.style.transform  = 'scale(1.1)';
+    btn.style.boxShadow  = '0 0 28px rgba(81,207,102,.8)';
+    app.quiz.score++;
+    addStar(3);
+    playSFX('correct');
+    launchConfetti(24);
+    spawnNotes(window.innerWidth*.5, window.innerHeight*.55, 5);
+    speak('เก่งมาก!', 'th-TH');
+    setTimeout(advanceQuiz, 1400);
+  } else {
+    btn.style.background = '#ff6b6b';
+    btn.classList.add('shake');
+    setTimeout(() => btn.classList.remove('shake'), 550);
+    playSFX('wrong');
+    speak('ลองใหม่นะ', 'th-TH');
+    setTimeout(() => {
+      container.querySelectorAll('.choice').forEach(b => {
+        if (b.querySelector('div')?.textContent?.trim() === correctItem.emoji) {
+          b.style.background = '#51cf66';
+          b.style.boxShadow  = '0 0 20px rgba(81,207,102,.6)';
+        }
+      });
+      setTimeout(advanceQuiz, 1300);
+    }, 900);
+  }
+}
+
+function advanceQuiz() {
+  if (app.quiz.idx < app.quiz.questions.length - 1) { app.quiz.idx++; renderQuizQ(); }
+  else showResult();
+}
+
+function exitQuiz() { playSFX('click'); showScreen('screen-grid'); }
+
+/* ──────────────────────────────────────────────
+   WRITING PRACTICE
+────────────────────────────────────────────── */
+let canvas, ctx, guideLayer, guideCtx, isDrawing = false;
+let hasDrawnAnything = false;
+let currentLetter = '';
+
+function startWriting(startIdx = 0) {
+  stopAllAudio(); playSFX('click');
+  
+  // กรองเฉพาะตัวไทย
+  app.data = app.mode === 'thai' ? THAI : THAI;
+  app.idx = startIdx;
+  
+  showScreen('screen-writing');
+  setupCanvas();
+  renderWritingCard();
+}
+
+function setupCanvas() {
+  // Canvas ชั้นล่าง (guide)
+  guideLayer = document.getElementById('guide-layer');
+  guideCtx = guideLayer.getContext('2d');
+  
+  // Canvas ชั้นบน (drawing)
+  canvas = document.getElementById('write-canvas');
+  ctx = canvas.getContext('2d');
+  
+  // ตั้งขนาด canvas ทั้ง 2 ชั้นให้เท่ากัน
+  const size = Math.min(window.innerWidth * 0.9, 420);
+  guideLayer.width = size;
+  guideLayer.height = size;
+  canvas.width = size;
+  canvas.height = size;
+  
+  // ตั้งค่า drawing สำหรับ user
+  ctx.lineWidth = 12;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#4f46e5';
+  
+  // Event listeners
+  canvas.addEventListener('pointerdown', startDraw);
+  canvas.addEventListener('pointermove', draw);
+  canvas.addEventListener('pointerup', stopDraw);
+  canvas.addEventListener('pointercancel', stopDraw);
+  canvas.addEventListener('pointerleave', stopDraw);
+  
+  clearCanvas();
+}
+
+function startDraw(e) {
+  isDrawing = true;
+  hasDrawnAnything = true;
+  const pos = getPointerPos(e);
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+  playSFX('click');
+}
+
+function draw(e) {
+  if (!isDrawing) return;
+  const pos = getPointerPos(e);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+}
+
+function stopDraw() {
+  if (isDrawing) {
+    isDrawing = false;
+    ctx.closePath();
+  }
+}
+
+function getPointerPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * (canvas.width / rect.width),
+    y: (e.clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function clearCanvas() {
+  // ล้างเฉพาะ canvas ชั้นบน (write-canvas) - guide ไม่หาย
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  hasDrawnAnything = false;
+  playSFX('click');
+}
+
+function renderWritingCard() {
+  const item = app.data[app.idx];
+  currentLetter = item.letter;
+  
+  // แสดงชื่อตัวอักษร + emoji
+  document.getElementById('write-emoji').textContent = item.emoji;
+  document.getElementById('write-name').textContent = item.reading;
+  document.getElementById('write-counter').textContent = 
+    `ตัวที่ ${app.idx + 1} จาก ${app.data.length}`;
+  document.getElementById('write-stars').textContent = app.stars;
+  
+  // ล้าง canvas ทั้ง 2 ชั้น
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  hasDrawnAnything = false;
+  
+  // วาด guide ลงบน guide layer (ชั้นล่าง)
+  drawStrokeGuide(item.letter);
+  
+  // เล่นเสียงอ่านตัวอักษร
+  setTimeout(() => speakItem(item), 300);
+}
+
+function drawStrokeGuide(letter) {
+  // วาดลงบน guide layer (ชั้นล่าง - ไม่โดน clear)
+  const w = guideLayer.width;
+  const h = guideLayer.height;
+  const centerX = w / 2;
+  const centerY = h / 2;
+  
+  // ล้าง guide layer ก่อน
+  guideCtx.fillStyle = 'rgba(255,255,255,.95)';
+  guideCtx.fillRect(0, 0, w, h);
+  
+  // วาดตัวอักษรจางๆ เป็น background
+  guideCtx.font = `900 ${w * 0.6}px Sarabun, sans-serif`;
+  guideCtx.fillStyle = 'rgba(180,180,220,0.25)';
+  guideCtx.textAlign = 'center';
+  guideCtx.textBaseline = 'middle';
+  guideCtx.fillText(letter, centerX, centerY);
+  
+  // เส้นโครงสร้างช่วย (grid)
+  guideCtx.strokeStyle = 'rgba(180,180,180,0.3)';
+  guideCtx.lineWidth = 2;
+  guideCtx.setLineDash([8, 8]);
+  
+  // เส้นกลางแนวตั้ง
+  guideCtx.beginPath();
+  guideCtx.moveTo(centerX, 0);
+  guideCtx.lineTo(centerX, h);
+  guideCtx.stroke();
+  
+  // เส้นกลางแนวนอน
+  guideCtx.beginPath();
+  guideCtx.moveTo(0, centerY);
+  guideCtx.lineTo(w, centerY);
+  guideCtx.stroke();
+  guideCtx.setLineDash([]);
+  
+  // จุดเริ่มต้น (บนซ้าย)
+  const startX = centerX - w * 0.18;
+  const startY = centerY - h * 0.22;
+  
+  // วาดวงกลม "เริ่ม" พร้อมเลข 1
+  guideCtx.fillStyle = 'rgba(34,197,94,0.9)';
+  guideCtx.beginPath();
+  guideCtx.arc(startX, startY, 22, 0, Math.PI * 2);
+  guideCtx.fill();
+  
+  // เงาให้เด่น
+  guideCtx.strokeStyle = 'rgba(255,255,255,1)';
+  guideCtx.lineWidth = 3;
+  guideCtx.beginPath();
+  guideCtx.arc(startX, startY, 22, 0, Math.PI * 2);
+  guideCtx.stroke();
+  
+  guideCtx.fillStyle = '#fff';
+  guideCtx.font = 'bold 20px sans-serif';
+  guideCtx.textAlign = 'center';
+  guideCtx.textBaseline = 'middle';
+  guideCtx.fillText('1', startX, startY);
+  
+  // วาดลูกศรแนะนำ (จากบนลงล่าง)
+  drawArrow(guideCtx, startX, startY + 30, startX, startY + h * 0.35, 'rgba(59,130,246,0.8)', 7);
+  
+  // ลูกศรที่ 2 (ซ้ายไปขวา)
+  const start2X = centerX - w * 0.12;
+  const start2Y = centerY - h * 0.05;
+  
+  // วงกลมเลข 2
+  guideCtx.fillStyle = 'rgba(168,85,247,0.9)';
+  guideCtx.beginPath();
+  guideCtx.arc(start2X, start2Y, 20, 0, Math.PI * 2);
+  guideCtx.fill();
+  
+  guideCtx.strokeStyle = 'rgba(255,255,255,1)';
+  guideCtx.lineWidth = 2.5;
+  guideCtx.beginPath();
+  guideCtx.arc(start2X, start2Y, 20, 0, Math.PI * 2);
+  guideCtx.stroke();
+  
+  guideCtx.fillStyle = '#fff';
+  guideCtx.font = 'bold 18px sans-serif';
+  guideCtx.fillText('2', start2X, start2Y);
+  
+  drawArrow(guideCtx, start2X + 25, start2Y, start2X + w * 0.32, start2Y, 'rgba(168,85,247,0.75)', 6);
+}
+
+function drawArrow(ctx, fromX, fromY, toX, toY, color, lineWidth = 4) {
+  const headlen = 15;
+  const angle = Math.atan2(toY - fromY, toX - fromX);
+  
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.lineCap = 'round';
+  
+  // เส้นหลัก
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(toX, toY);
+  ctx.stroke();
+  
+  // หัวลูกศร
+  ctx.beginPath();
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), 
+             toY - headlen * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), 
+             toY - headlen * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function checkWriting() {
+  if (!hasDrawnAnything) {
+    playSFX('wrong');
+    return;
+  }
+  
+  // ตรวจสอบการเขียน (ตรวจพื้นที่ที่เขียน)
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const pixels = imageData.data;
+  let drawnPixels = 0;
+  
+  for (let i = 0; i < pixels.length; i += 4) {
+    const r = pixels[i], g = pixels[i+1], b = pixels[i+2];
+    // ไม่ใช่สีขาว = เขียน
+    if (r < 250 || g < 250 || b < 250) drawnPixels++;
+  }
+  
+  const coverage = drawnPixels / (canvas.width * canvas.height);
+  
+  // ถ้าเขียนพอสมควร (>3%) = ผ่าน
+  if (coverage > 0.03) {
+    playSFX('correct');
+    addStar(2);
+    spawnConfetti(window.innerWidth/2, window.innerHeight/2, 15);
+    
+    // Flash เขียว
+    canvas.style.boxShadow = '0 0 40px rgba(34,197,94,.8)';
+    setTimeout(() => {
+      canvas.style.boxShadow = '0 8px 24px rgba(0,0,0,.15)';
+    }, 600);
+    
+    // Auto next
+    setTimeout(() => {
+      if (app.idx < app.data.length - 1) {
+        nextWritingLetter();
+      } else {
+        celebrateAllDone();
+      }
+    }, 1200);
+  } else {
+    playSFX('wrong');
+    canvas.style.boxShadow = '0 0 40px rgba(239,68,68,.8)';
+    setTimeout(() => {
+      canvas.style.boxShadow = '0 8px 24px rgba(0,0,0,.15)';
+    }, 600);
+  }
+}
+
+function nextWritingLetter() {
+  if (app.idx < app.data.length - 1) {
+    app.idx++;
+    playSFX('next');
+    renderWritingCard();
+  }
+}
+
+function exitWriting() {
+  stopAllAudio(); playSFX('click');
+  buildGrid(); showScreen('screen-grid');
+}
+
+/* ──────────────────────────────────────────────
+   RESULT
+────────────────────────────────────────────── */
+function showResult() {
+  const s = app.quiz.score, t = app.quiz.questions.length;
+  const p = Math.round((s/t)*100);
+  document.getElementById('result-score').textContent = `ตอบถูก ${s} จาก ${t} ข้อ (${p}%)`;
+  let stars, msg;
+  if (p >= 90)      { stars='⭐⭐⭐'; msg='ยอดเยี่ยมมาก! หนูเก่งที่สุดเลย! 🌟'; }
+  else if (p >= 60) { stars='⭐⭐';   msg='เก่งมากเลย! ฝึกอีกนิดก็สมบูรณ์แบบ! 💪'; }
+  else              { stars='⭐';    msg='ไม่เป็นไร ลองอีกครั้งนะ! หนูทำได้ 🤗'; }
+  document.getElementById('result-stars').textContent   = stars;
+  document.getElementById('result-message').textContent = msg;
+  showScreen('screen-result');
+  launchConfetti(60);
+  playSFX('fanfare');
+  speak('เก่งมากเลย!', 'th-TH');
+}
+
+/* ──────────────────────────────────────────────
+   STARS / REWARDS
+────────────────────────────────────────────── */
+function addStar(n = 1) {
+  app.stars += n;
+  syncStars();
+  playSFX('star');
+  const el = document.getElementById('hud-stars');
+  el.style.animation = 'none'; void el.offsetWidth;
+  el.style.animation = 'pop-star .5s ease-out';
+  const r = document.createElement('div');
+  r.className = 'reward-star';
+  r.textContent = `+${n}⭐`;
+  r.style.cssText = `right:${50+Math.random()*50}px;top:${40+Math.random()*40}px;font-size:20px;`;
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 1100);
+}
+
+function syncStars() {
+  const v = app.stars;
+  ['hud-stars','quiz-stars'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = v;
+  });
+}
+
+/* ──────────────────────────────────────────────
+   CONFETTI
+────────────────────────────────────────────── */
+function launchConfetti(count = 20) {
+  const ct  = document.getElementById('confetti');
+  const pal = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6fc8','#845ec2','#48dbfb','#ff9f43','#a29bfe','#ffeaa7'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const bit = document.createElement('div');
+      bit.className = 'confetti-bit';
+      const w = 8 + Math.random()*13;
+      bit.style.cssText = `
+        left:${Math.random()*100}%;top:-14px;
+        width:${w}px;height:${w*(0.5+Math.random())}px;
+        background:${pal[Math.floor(Math.random()*pal.length)]};
+        border-radius:${Math.random()>.5?'50%':'3px'};
+        animation-duration:${1.6+Math.random()*2.3}s;
+        animation-delay:${Math.random()*.3}s;
+      `;
+      ct.appendChild(bit);
+      setTimeout(() => bit.remove(), 4600);
+    }, i * 28);
+  }
+}
+
+/* ──────────────────────────────────────────────
+   ALL-DONE CELEBRATION
+────────────────────────────────────────────── */
+function celebrateAllDone() {
+  launchConfetti(80);
+  playSFX('fanfare');
+  speak('เก่งมากเลย! เรียนครบทุกตัวแล้ว!', 'th-TH');
+  const ov = document.createElement('div');
+  ov.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.78);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    z-index:500;animation:slide-up .35s ease-out;
+    font-family:'Fredoka One','Noto Sans Thai',sans-serif;`;
+  ov.innerHTML = `
+    <div style="font-size:clamp(80px,24vw,130px);animation:float 2s ease-in-out infinite;">🏆</div>
+    <h2 style="color:#fff;font-size:clamp(26px,7.5vw,44px);font-weight:900;text-align:center;margin:6px 0;">
+      เก่งมากเลย!
+    </h2>
+    <p style="color:rgba(255,255,255,.85);font-size:clamp(15px,4.2vw,21px);text-align:center;">
+      เรียนครบทุกตัวอักษรแล้ว! 🎉
+    </p>
+    <button onclick="this.parentElement.remove();buildGrid();showScreen('screen-grid');"
+      style="margin-top:20px;background:#ffd93d;border:none;border-radius:20px;
+             padding:13px 30px;font-size:clamp(17px,4.8vw,24px);font-weight:900;cursor:pointer;
+             font-family:inherit;box-shadow:0 6px 20px rgba(255,217,61,.5);">
+      🎉 เยี่ยมมาก!
+    </button>
+  `;
+  document.body.appendChild(ov);
+  setTimeout(() => {
+    if (ov.parentElement) { ov.remove(); buildGrid(); showScreen('screen-grid'); }
+  }, 6000);
+}
+
+/* ──────────────────────────────────────────────
+   SWIPE
+────────────────────────────────────────────── */
+function setupSwipe() {
+  const area = document.getElementById('learn-swipe');
+  let sx = 0, sy = 0, didMove = false;
+  area.ontouchstart = e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; didMove = false; };
+  area.ontouchmove  = e => { if (Math.abs(e.touches[0].clientX - sx) > 12) didMove = true; };
+  area.ontouchend   = e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 48) {
+      resumeAC(); dx < 0 ? nextLetter() : prevLetter();
+    } else if (!didMove) {
+      resumeAC(); onLetterTap();
+    }
+  };
+}
+
+/* ──────────────────────────────────────────────
+   KEYBOARD
+────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  const active = [...document.querySelectorAll('.screen')].find(s => !s.classList.contains('hidden'));
+  if (!active) return;
+  if (active.id === 'screen-learn') {
+    if (e.key === 'ArrowRight') { resumeAC(); nextLetter(); }
+    if (e.key === 'ArrowLeft')  { resumeAC(); prevLetter(); }
+    if (e.key === ' ')          { e.preventDefault(); resumeAC(); onLetterTap(); }
+  }
+});
+
+/* ──────────────────────────────────────────────
+   INIT
+────────────────────────────────────────────── */
+(function init() {
+  syncStars();
+  document.getElementById('hud').style.display = 'none';
+  if (window.speechSynthesis) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  }
+  
+  // เริ่มต้นโหมดภาษาไทยทันที
+  setTimeout(() => {
+    startMode('thai');
+  }, 100);
+})();
+</script>
+</body>
+</html>

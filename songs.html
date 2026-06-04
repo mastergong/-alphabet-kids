@@ -89,11 +89,12 @@ body { font-family:'Fredoka One','Sarabun',sans-serif; overflow:hidden; height:1
     <button onclick="nextItem()" class="btn" style="background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:50%;width:60px;height:60px;font-size:26px;color:#fff;display:flex;align-items:center;justify-content:center;">▶</button>
   </div>
 
-  <!-- Tempo -->
-  <div style="flex-shrink:0;display:flex;justify-content:center;gap:8px;padding:8px 20px 20px;">
+  <!-- Tempo + Voice toggle -->
+  <div style="flex-shrink:0;display:flex;justify-content:center;gap:8px;padding:8px 20px 20px;flex-wrap:wrap;">
     <button onclick="setTempo(1.55)" id="tbtn-slow"   class="btn" style="background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.35);border-radius:30px;padding:7px 16px;color:#fff;font-size:clamp(12px,3.5vw,15px);font-weight:800;font-family:inherit;">🐢 ช้า</button>
     <button onclick="setTempo(1.0)"  id="tbtn-normal" class="btn" style="background:rgba(255,255,255,.42);border:2px solid #fff;             border-radius:30px;padding:7px 16px;color:#fff;font-size:clamp(12px,3.5vw,15px);font-weight:800;font-family:inherit;">🎵 ปกติ</button>
     <button onclick="setTempo(0.65)" id="tbtn-fast"   class="btn" style="background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.35);border-radius:30px;padding:7px 16px;color:#fff;font-size:clamp(12px,3.5vw,15px);font-weight:800;font-family:inherit;">⚡ เร็ว</button>
+    <button onclick="toggleVoice()"  id="tbtn-voice"  class="btn" style="background:rgba(255,255,255,.42);border:2px solid #fff;             border-radius:30px;padding:7px 16px;color:#fff;font-size:clamp(12px,3.5vw,15px);font-weight:800;font-family:inherit;">🎤 เสียงร้อง</button>
   </div>
 
 </div>
@@ -278,8 +279,19 @@ function playNote(noteName, durationMs) {
 }
 
 // ── TTS: fire-and-forget (no waiting for onend) ───────────
+let voiceMuted = false;
+function toggleVoice() {
+  voiceMuted = !voiceMuted;
+  if (voiceMuted) window.speechSynthesis && speechSynthesis.cancel();
+  const btn = document.getElementById('tbtn-voice');
+  if (btn) {
+    btn.textContent = voiceMuted ? '🔇 ปิดเสียงร้อง' : '🎤 เสียงร้อง';
+    btn.style.background = voiceMuted ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.42)';
+    btn.style.border = voiceMuted ? '2px solid rgba(255,255,255,.3)' : '2px solid #fff';
+  }
+}
 function spkFire(text, lang) {
-  if (!window.speechSynthesis) return;
+  if (!window.speechSynthesis || voiceMuted) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang  = lang;

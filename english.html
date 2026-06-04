@@ -173,7 +173,7 @@ body {
     <button onclick="playSFX('click');startLearnMode(0)" class="btn"
       style="background:rgba(255,255,255,.2);border:none;border-radius:20px;
              padding:7px 14px;color:#fff;font-size:13px;font-weight:700;font-family:inherit;">
-      📖 เรียน
+      📖 Learn
     </button>
   </div>
 
@@ -187,15 +187,15 @@ body {
     <button onclick="startLearnMode(0)" class="btn flex-1"
       style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.4);
              border-radius:16px;padding:13px;font-size:clamp(13px,3.8vw,17px);
-             font-weight:900;font-family:inherit;">📖 เรียน</button>
+             font-weight:900;font-family:inherit;">📖 Learn</button>
     <button onclick="startWriting(0)" class="btn flex-1"
       style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.4);
              border-radius:16px;padding:13px;font-size:clamp(13px,3.8vw,17px);
-             font-weight:900;font-family:inherit;">✍️ หัดเขียน</button>
+             font-weight:900;font-family:inherit;">✍️ Write</button>
     <button onclick="startQuiz()" class="btn flex-1"
       style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.4);
              border-radius:16px;padding:13px;font-size:clamp(13px,3.8vw,17px);
-             font-weight:900;font-family:inherit;">🎮 ทดสอบ</button>
+             font-weight:900;font-family:inherit;">🎮 Quiz</button>
   </div>
 </div>
 
@@ -232,7 +232,7 @@ body {
          style="color:#fff;font-size:clamp(24px,7vw,48px);font-weight:900;
                 text-align:center;text-shadow:2px 2px 5px rgba(0,0,0,.3);margin-top:6px;"></div>
     <p style="color:rgba(255,255,255,.55);font-size:clamp(12px,3vw,14px);margin-top:10px;line-height:1.4;text-align:center;padding:0 10px;">
-      👆 แตะตัวอักษรหรือรูปภาพเพื่อฟังเสียง<br class="sm:hidden">&nbsp;|&nbsp; ← ปัด →
+      👆 Tap letter or emoji to hear sound<br class="sm:hidden">&nbsp;|&nbsp; ← Swipe →
     </p>
   </div>
 
@@ -286,7 +286,7 @@ body {
   <div class="flex-1 flex flex-col items-center justify-center px-4">
     <p style="color:rgba(255,255,255,.92);font-size:clamp(13px,4.2vw,19px);
               font-weight:700;margin-bottom:4px;text-align:center;">
-      🤔 ตัวอักษรนี้คือรูปอะไรนะ? &nbsp;<span style="font-size:13px;opacity:.7;">(แตะตัวอักษรเพื่อฟัง)</span>
+      🤔 Which picture is this letter? &nbsp;<span style="font-size:13px;opacity:.7;">(tap letter to hear)</span>
     </p>
     <div id="quiz-letter"
          style="font-size:clamp(95px,36vw,200px);color:#fff;font-weight:900;
@@ -310,7 +310,7 @@ body {
     <div class="float" style="font-size:clamp(88px,26vw,135px);line-height:1;">🏆</div>
     <h1 style="color:#fff;font-size:clamp(26px,8.5vw,50px);font-weight:900;
                text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.2);margin:5px 0;">
-      เก่งมากเลย! 🎉
+      Great Job! 🎉
     </h1>
     <div id="result-stars"  style="font-size:clamp(34px,11vw,58px);margin:5px 0;"></div>
     <p  id="result-score"   style="color:rgba(255,255,255,.95);font-size:clamp(17px,5vw,26px);font-weight:700;text-align:center;"></p>
@@ -319,15 +319,15 @@ body {
       <button onclick="startQuiz()" class="btn"
         style="background:rgba(255,255,255,.92);color:#f5576c;border:none;
                border-radius:20px;padding:14px;font-size:clamp(17px,4.8vw,23px);
-               font-weight:900;font-family:inherit;">🔄 เล่นอีกครั้ง</button>
+               font-weight:900;font-family:inherit;">🔄 Play Again</button>
       <button onclick="playSFX('click');showScreen('screen-grid')" class="btn"
         style="background:rgba(255,255,255,.22);color:#fff;border:2px solid rgba(255,255,255,.45);
                border-radius:20px;padding:12px;font-size:clamp(15px,4.2vw,21px);font-weight:900;font-family:inherit;">
-        📖 กลับไปเรียน</button>
+        📖 Back to Learn</button>
       <button onclick="goHome()" class="btn"
         style="background:rgba(255,255,255,.22);color:#fff;border:2px solid rgba(255,255,255,.45);
                border-radius:20px;padding:12px;font-size:clamp(15px,4.2vw,21px);font-weight:900;font-family:inherit;">
-        🏠 หน้าหลัก</button>
+        🏠 Home</button>
     </div>
   </div>
 </div>
@@ -364,7 +364,7 @@ body {
            font-weight:900;text-shadow:2px 2px 8px rgba(0,0,0,.3);
            font-family:'Sarabun',sans-serif;"></div>
       <p style="color:rgba(255,255,255,.75);font-size:clamp(12px,3.2vw,15px);
-                margin-top:4px;font-weight:600;">👇 เขียนตามเส้นประด้านล่าง</p>
+                margin-top:4px;font-weight:600;">👇 Trace the letter below</p>
     </div>
     
     <!-- Container สำหรับ Canvas -->
@@ -392,17 +392,17 @@ body {
       style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.45);
              border-radius:20px;padding:14px 18px;font-size:clamp(15px,4.2vw,20px);
              color:#fff;font-weight:900;font-family:inherit;flex:1;">
-      🗑️ ลบ</button>
+      🗑️ Clear</button>
     <button onclick="checkWriting()" class="btn glow-border"
       style="background:rgba(255,220,80,.85);border:3px solid rgba(255,255,255,.8);
              border-radius:20px;padding:14px 18px;font-size:clamp(15px,4.2vw,20px);
              color:#8b4513;font-weight:900;font-family:inherit;flex:2;">
-      ✅ ตรวจ</button>
+      ✅ Check</button>
     <button onclick="nextWritingLetter()" id="btn-next-write" class="btn"
       style="background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.45);
              border-radius:20px;padding:14px 18px;font-size:clamp(15px,4.2vw,20px);
              color:#fff;font-weight:900;font-family:inherit;flex:1;">
-      ถัดไป →</button>
+      Next →</button>
   </div>
 </div>
 
@@ -953,7 +953,8 @@ function buildGrid() {
   document.getElementById('grid-title').textContent =
     isEn ? '🔤 A – Z English' : isBoth ? '🌟 ก–ฮ & A–Z' : '🇹🇭 ก – ฮ';
   document.getElementById('grid-sub').textContent =
-    `${app.data.length} ตัวอักษร • แตะเพื่อเรียนทีละตัว • ✅ = เรียนแล้ว`;
+    isEn ? `${app.data.length} letters • Tap to learn one by one • ✅ = learned`
+    : `${app.data.length} ตัวอักษร • แตะเพื่อเรียนทีละตัว • ✅ = เรียนแล้ว`;
 
   const ct = document.getElementById('letters-grid');
   ct.innerHTML = '';
@@ -1180,14 +1181,14 @@ function handleAnswer(correct, btn, container, correctItem) {
     playSFX('correct');
     launchConfetti(24);
     spawnNotes(window.innerWidth*.5, window.innerHeight*.55, 5);
-    speak('เก่งมาก!', 'th-TH');
+    speak('Great!', 'en-US');
     setTimeout(advanceQuiz, 1400);
   } else {
     btn.style.background = '#ff6b6b';
     btn.classList.add('shake');
     setTimeout(() => btn.classList.remove('shake'), 550);
     playSFX('wrong');
-    speak('ลองใหม่นะ', 'th-TH');
+    speak('Try again!', 'en-US');
     setTimeout(() => {
       container.querySelectorAll('.choice').forEach(b => {
         if (b.querySelector('div')?.textContent?.trim() === correctItem.emoji) {
@@ -1448,17 +1449,17 @@ function exitWriting() {
 function showResult() {
   const s = app.quiz.score, t = app.quiz.questions.length;
   const p = Math.round((s/t)*100);
-  document.getElementById('result-score').textContent = `ตอบถูก ${s} จาก ${t} ข้อ (${p}%)`;
+  document.getElementById('result-score').textContent = `Correct: ${s} / ${t} (${p}%)`;
   let stars, msg;
-  if (p >= 90)      { stars='⭐⭐⭐'; msg='ยอดเยี่ยมมาก! หนูเก่งที่สุดเลย! 🌟'; }
-  else if (p >= 60) { stars='⭐⭐';   msg='เก่งมากเลย! ฝึกอีกนิดก็สมบูรณ์แบบ! 💪'; }
-  else              { stars='⭐';    msg='ไม่เป็นไร ลองอีกครั้งนะ! หนูทำได้ 🤗'; }
+  if (p >= 90)      { stars='⭐⭐⭐'; msg='Excellent! You\'re amazing! 🌟'; }
+  else if (p >= 60) { stars='⭐⭐';   msg='Great job! Practice a bit more! 💪'; }
+  else              { stars='⭐';    msg='That\'s okay! Try again! You can do it! 🤗'; }
   document.getElementById('result-stars').textContent   = stars;
   document.getElementById('result-message').textContent = msg;
   showScreen('screen-result');
   launchConfetti(60);
   playSFX('fanfare');
-  speak('เก่งมากเลย!', 'th-TH');
+  speak('Great job!', 'en-US');
 }
 
 /* ──────────────────────────────────────────────
@@ -1518,7 +1519,7 @@ function launchConfetti(count = 20) {
 function celebrateAllDone() {
   launchConfetti(80);
   playSFX('fanfare');
-  speak('เก่งมากเลย! เรียนครบทุกตัวแล้ว!', 'th-TH');
+  speak('Great job! You learned all letters!', 'en-US');
   const ov = document.createElement('div');
   ov.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.78);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -1527,16 +1528,16 @@ function celebrateAllDone() {
   ov.innerHTML = `
     <div style="font-size:clamp(80px,24vw,130px);animation:float 2s ease-in-out infinite;">🏆</div>
     <h2 style="color:#fff;font-size:clamp(26px,7.5vw,44px);font-weight:900;text-align:center;margin:6px 0;">
-      เก่งมากเลย!
+      Great Job!
     </h2>
     <p style="color:rgba(255,255,255,.85);font-size:clamp(15px,4.2vw,21px);text-align:center;">
-      เรียนครบทุกตัวอักษรแล้ว! 🎉
+      You learned all letters! 🎉
     </p>
     <button onclick="this.parentElement.remove();buildGrid();showScreen('screen-grid');"
       style="margin-top:20px;background:#ffd93d;border:none;border-radius:20px;
              padding:13px 30px;font-size:clamp(17px,4.8vw,24px);font-weight:900;cursor:pointer;
              font-family:inherit;box-shadow:0 6px 20px rgba(255,217,61,.5);">
-      🎉 เยี่ยมมาก!
+      🎉 Awesome!
     </button>
   `;
   document.body.appendChild(ov);

@@ -285,12 +285,15 @@ body {
   <div class="flex-1 flex flex-col items-center justify-center px-4">
     <p style="color:rgba(255,255,255,.92);font-size:clamp(13px,4.2vw,19px);
               font-weight:700;margin-bottom:4px;text-align:center;">
-      🤔 ตัวอักษรนี้คือรูปอะไรนะ? &nbsp;<span style="font-size:13px;opacity:.7;">(แตะตัวอักษรเพื่อฟัง)</span>
+      🤔 รูปนี้เริ่มต้นด้วยตัวอักษรอะไร? &nbsp;<span style="font-size:13px;opacity:.7;">(แตะรูปเพื่อฟังเสียง)</span>
     </p>
     <div id="quiz-letter"
-         style="font-size:clamp(95px,36vw,200px);color:#fff;font-weight:900;
-                text-shadow:4px 4px 0 rgba(0,0,0,.18);line-height:1;margin-bottom:12px;cursor:pointer;"
+         style="font-size:clamp(88px,28vw,160px);line-height:1;margin-bottom:4px;cursor:pointer;
+                filter:drop-shadow(3px 4px 10px rgba(0,0,0,.3));"
          onclick="speakQuizLetter()"></div>
+    <div id="quiz-word-label"
+         style="color:#fff;font-size:clamp(16px,5vw,26px);font-weight:900;
+                margin-bottom:12px;text-align:center;text-shadow:2px 2px 4px rgba(0,0,0,.25);"></div>
     <div id="quiz-choices"
          style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:370px;"></div>
   </div>
@@ -1147,35 +1150,37 @@ function renderQuizQ() {
   document.getElementById('quiz-score-txt').textContent = `✅ ถูก ${app.quiz.score} ข้อ`;
   document.getElementById('quiz-stars').textContent     = app.stars;
 
+  // Show picture (emoji) as question
   const lEl = document.getElementById('quiz-letter');
   lEl.style.animation = 'none'; void lEl.offsetWidth;
   lEl.style.animation = 'bounce-in .5s both';
-  lEl.textContent = q.item.letter;
+  lEl.textContent = q.item.emoji;
+
+  const wl = document.getElementById('quiz-word-label');
+  if (wl) { wl.style.animation='none'; void wl.offsetWidth; wl.style.animation='slide-up .4s .1s both'; wl.style.opacity='0'; wl.textContent = q.item.word; }
 
   setTimeout(() => { speakItem(q.item); playSFX('letter'); }, 300);
 
+  // Choices are letters
   const ct = document.getElementById('quiz-choices');
   ct.innerHTML = '';
   q.choices.forEach((choice, ci) => {
     const btn = document.createElement('div');
     btn.className = 'choice';
     btn.style.cssText = `
-      background:rgba(255,255,255,.92);padding:10px 4px;
+      background:rgba(255,255,255,.92);padding:14px 4px;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       box-shadow:0 6px 18px rgba(0,0,0,.15);
       animation:slide-up .35s ease-out ${ci*.1}s both;opacity:0;
     `;
     btn.innerHTML = `
-      <div style="font-size:clamp(46px,13.5vw,78px);line-height:1;">${choice.emoji}</div>
-      <div style="font-size:clamp(10px,2.8vw,13px);color:#444;font-weight:700;
-                  margin-top:3px;text-align:center;">${choice.word}</div>
+      <div style="font-size:clamp(44px,13vw,72px);font-weight:900;color:#333;line-height:1;">${choice.letter}</div>
+      <div style="font-size:clamp(10px,2.8vw,13px);color:#666;font-weight:700;
+                  margin-top:4px;text-align:center;">${choice.name}</div>
     `;
+    btn.dataset.letter = choice.letter;
     btn.addEventListener('click', () => {
-      if (app.quiz.answered) {
-        console.log('Click blocked - already answered');
-        return;
-      }
-      console.log('Answer clicked:', choice.letter, 'Correct:', choice === q.item);
+      if (app.quiz.answered) return;
       resumeAC();
       handleAnswer(choice === q.item, btn, ct, q.item);
     });
@@ -1208,7 +1213,7 @@ function handleAnswer(correct, btn, container, correctItem) {
     playSFX('wrong');
     setTimeout(() => {
       container.querySelectorAll('.choice').forEach(b => {
-        if (b.querySelector('div')?.textContent?.trim() === correctItem.emoji) {
+        if (b.dataset.letter === correctItem.letter) {
           b.style.background = '#51cf66';
           b.style.boxShadow  = '0 0 20px rgba(81,207,102,.6)';
         }

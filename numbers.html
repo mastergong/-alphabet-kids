@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+<title>🔢 เรียนนับเลข 1-10</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+body {
+  font-family: 'Fredoka One', 'Sarabun', 'Segoe UI', sans-serif;
+  overflow: hidden; height: 100dvh; width: 100vw;
+  background: #1a1a2e; touch-action: pan-y;
+}
+.screen {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  transition: opacity .35s ease, transform .35s ease;
+}
+.screen.hidden { opacity: 0; pointer-events: none; transform: scale(.97); }
+
+.float  { animation: float  3.2s ease-in-out infinite; }
+.float2 { animation: float2 3.8s ease-in-out .8s infinite; }
+.float3 { animation: float3 4.2s ease-in-out 1.8s infinite; }
+@keyframes float  { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-18px)} }
+@keyframes float2 { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-22px)} }
+@keyframes float3 { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-15px)} }
+@keyframes rainbow { 0%{color:#ff6b6b}20%{color:#ffd93d}40%{color:#6bcf7f}60%{color:#4d96ff}80%{color:#c77dff}100%{color:#ff6b6b} }
+
+.rainbow-text { animation: rainbow 2.5s linear infinite; }
+.btn { transition: transform .2s; cursor: pointer; user-select: none; }
+.btn:active { transform: scale(0.88) !important; }
+
+.number-card {
+  aspect-ratio: 1; border-radius: 20px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; user-select: none; transition: transform .2s, box-shadow .2s;
+  position: relative;
+}
+.number-card:hover { transform: scale(1.05); }
+.number-card:active { transform: scale(0.92); }
+
+.number-huge { font-size: clamp(100px, 32vw, 240px); font-weight: 900; line-height: 1; }
+.emoji-huge { font-size: clamp(80px, 24vw, 180px); line-height: 1; }
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud" style="position:fixed;top:0;left:0;right:0;z-index:200;
+     padding:8px 12px;pointer-events:none;display:flex;
+     flex-direction:row;align-items:center;justify-content:space-between;">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a href="index.html" style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border-radius:30px;
+                padding:8px 14px;pointer-events:auto;display:flex;align-items:center;gap:5px;
+                border:1.5px solid rgba(255,255,255,.3);text-decoration:none;">
+      <span style="font-size:18px;">🏠</span>
+      <span style="color:#fff;font-size:13px;font-weight:700;">หน้าแรก</span>
+    </a>
+    <div style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border-radius:30px;
+                padding:5px 14px;pointer-events:auto;display:flex;align-items:center;gap:5px;
+                border:1.5px solid rgba(255,220,80,.4);">
+      <span style="font-size:18px;">⭐</span>
+      <span id="hud-stars" style="color:#fcd34d;font-weight:900;font-size:17px;">0</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div id="sound-toggle" onclick="toggleSound()" style="background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
+         border-radius:30px;padding:8px 14px;pointer-events:auto;cursor:pointer;
+         display:flex;align-items:center;gap:5px;border:1.5px solid rgba(255,255,255,.2);">
+      <span id="sound-icon" style="font-size:18px;">🔊</span>
+      <span style="color:#fff;font-size:13px;font-weight:700;">เสียง</span>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Grid -->
+<div id="screen-grid" class="screen" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
+  
+  <div class="flex items-center justify-between px-4" style="padding-top:56px;padding-bottom:12px;flex-shrink:0;">
+    <div></div>
+    <h2 style="color:#fff;font-size:clamp(20px,5.5vw,28px);font-weight:900;text-align:center;">
+      นับเลข 1-10
+    </h2>
+    <div></div>
+  </div>
+
+  <div id="numbers-grid" style="flex:1;display:grid;grid-template-columns:repeat(2,1fr);
+       gap:12px;padding:12px;align-content:start;overflow-y:auto;"></div>
+
+  <div class="flex gap-3 px-4 pb-4" style="flex-shrink:0;">
+    <button onclick="startLearn(0)" class="btn flex-1"
+      style="background:rgba(255,255,255,.25);color:#fff;border:2px solid rgba(255,255,255,.5);
+             border-radius:18px;padding:16px;font-size:clamp(15px,4.5vw,20px);
+             font-weight:900;font-family:inherit;">📖 เรียนทีละตัว</button>
+    <button onclick="startQuiz()" class="btn flex-1"
+      style="background:rgba(255,255,255,.25);color:#fff;border:2px solid rgba(255,255,255,.5);
+             border-radius:18px;padding:16px;font-size:clamp(15px,4.5vw,20px);
+             font-weight:900;font-family:inherit;">🎮 ทดสอบ</button>
+  </div>
+</div>
+
+<!-- Screen: Learn -->
+<div id="screen-learn" class="screen hidden" style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);">
+  
+  <div class="flex items-center justify-between px-4" style="padding-top:56px;padding-bottom:12px;flex-shrink:0;">
+    <button onclick="exitLearn()" class="btn"
+      style="background:rgba(255,255,255,.25);border:none;border-radius:50%;
+             width:50px;height:50px;font-size:24px;color:#fff;
+             display:flex;align-items:center;justify-content:center;">←</button>
+    <div id="learn-counter" style="color:rgba(255,255,255,.9);font-size:clamp(14px,4vw,18px);font-weight:700;"></div>
+    <div style="width:50px;"></div>
+  </div>
+
+  <div class="flex-1 flex flex-col items-center justify-center px-4">
+    <div id="learn-number" class="number-huge" onclick="playNumber()"
+         style="color:#fff;cursor:pointer;text-shadow:4px 4px 8px rgba(0,0,0,.2);"></div>
+    <div id="learn-emoji" class="emoji-huge" onclick="playNumber()"
+         style="cursor:pointer;margin:16px 0;filter:drop-shadow(3px 4px 8px rgba(0,0,0,.2));"></div>
+    <div id="learn-thai" onclick="playNumber()"
+         style="color:#fff;font-size:clamp(32px,9vw,56px);font-weight:900;
+                text-align:center;text-shadow:2px 2px 4px rgba(0,0,0,.2);margin-top:8px;cursor:pointer;"></div>
+    <div id="learn-english" onclick="playNumber()"
+         style="color:rgba(255,255,255,.85);font-size:clamp(24px,6.5vw,40px);font-weight:700;
+                text-align:center;margin-top:6px;cursor:pointer;"></div>
+    <p style="color:rgba(255,255,255,.7);font-size:clamp(13px,3.5vw,16px);margin-top:16px;">
+      👆 แตะเพื่อฟังเสียง
+    </p>
+  </div>
+
+  <div class="flex items-center gap-3 px-4 pb-5" style="flex-shrink:0;">
+    <button onclick="prevNumber()" class="btn"
+      style="background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.5);
+             border-radius:50%;width:70px;height:70px;font-size:30px;color:#fff;
+             display:flex;align-items:center;justify-content:center;">◀</button>
+    <button onclick="playNumber()" class="btn flex-1"
+      style="background:rgba(255,255,255,.35);border:3px solid rgba(255,255,255,.7);
+             border-radius:20px;padding:18px;font-size:clamp(17px,5vw,24px);
+             color:#fff;font-weight:900;font-family:inherit;min-height:70px;">
+      🔊 ฟังเสียง
+    </button>
+    <button onclick="nextNumber()" class="btn"
+      style="background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.5);
+             border-radius:50%;width:70px;height:70px;font-size:30px;color:#fff;
+             display:flex;align-items:center;justify-content:center;">▶</button>
+  </div>
+</div>
+
+<!-- Screen: Quiz -->
+<div id="screen-quiz" class="screen hidden" style="background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);">
+  <div class="flex items-center justify-between px-4" style="padding-top:56px;padding-bottom:12px;flex-shrink:0;">
+    <button onclick="exitQuiz()" class="btn"
+      style="background:rgba(255,255,255,.25);border:none;border-radius:50%;
+             width:50px;height:50px;font-size:24px;color:#fff;
+             display:flex;align-items:center;justify-content:center;">←</button>
+    <div id="quiz-counter" style="color:#fff;font-size:clamp(16px,4.5vw,22px);font-weight:900;"></div>
+    <div style="width:50px;"></div>
+  </div>
+
+  <div class="flex-1 flex flex-col items-center justify-center px-4">
+    <div id="quiz-question" style="color:#fff;font-size:clamp(28px,8vw,48px);font-weight:900;
+         text-align:center;margin-bottom:24px;"></div>
+    <div id="quiz-choices" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;width:100%;max-width:400px;"></div>
+  </div>
+
+  <div class="px-4 pb-5" style="flex-shrink:0;">
+    <div id="quiz-feedback" style="color:#fff;font-size:clamp(15px,4vw,20px);font-weight:700;
+         text-align:center;min-height:30px;"></div>
+  </div>
+</div>
+
+<!-- Screen: Result -->
+<div id="screen-result" class="screen hidden" style="background:linear-gradient(135deg,#fa709a 0%,#fee140 100%);">
+  <div class="flex-1 flex flex-col items-center justify-center px-4">
+    <h1 style="color:#fff;font-size:clamp(32px,9vw,56px);font-weight:900;text-shadow:3px 3px 6px rgba(0,0,0,.2);">
+      เก่งมาก! 🎉
+    </h1>
+    <div id="result-stars" style="font-size:clamp(48px,14vw,80px);margin:12px 0;"></div>
+    <p id="result-score" style="color:#fff;font-size:clamp(20px,6vw,32px);font-weight:800;text-align:center;"></p>
+    <p id="result-message" style="color:rgba(255,255,255,.9);font-size:clamp(15px,4vw,22px);text-align:center;margin:12px 0 32px;"></p>
+    <div class="flex flex-col gap-3 w-full" style="max-width:300px;">
+      <button onclick="startQuiz()" class="btn"
+        style="background:rgba(255,255,255,.95);color:#f5576c;border:none;
+               border-radius:20px;padding:16px;font-size:clamp(18px,5vw,24px);
+               font-weight:900;font-family:inherit;">🔄 เล่นอีกครั้ง</button>
+      <button onclick="showGrid()" class="btn"
+        style="background:rgba(255,255,255,.3);color:#fff;border:2px solid rgba(255,255,255,.5);
+               border-radius:20px;padding:14px;font-size:clamp(16px,4.5vw,22px);font-weight:900;font-family:inherit;">
+        📖 กลับไปเรียน</button>
+      <button onclick="goHome()" class="btn"
+        style="background:rgba(255,255,255,.3);color:#fff;border:2px solid rgba(255,255,255,.5);
+               border-radius:20px;padding:14px;font-size:clamp(16px,4.5vw,22px);font-weight:900;font-family:inherit;">
+        🏠 หน้าแรก</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Data
+const NUMBERS = [
+  {num:1, thai:'หนึ่ง', english:'One', emoji:'1️⃣'},
+  {num:2, thai:'สอง', english:'Two', emoji:'2️⃣'},
+  {num:3, thai:'สาม', english:'Three', emoji:'3️⃣'},
+  {num:4, thai:'สี่', english:'Four', emoji:'4️⃣'},
+  {num:5, thai:'ห้า', english:'Five', emoji:'5️⃣'},
+  {num:6, thai:'หก', english:'Six', emoji:'6️⃣'},
+  {num:7, thai:'เจ็ด', english:'Seven', emoji:'7️⃣'},
+  {num:8, thai:'แปด', english:'Eight', emoji:'8️⃣'},
+  {num:9, thai:'เก้า', english:'Nine', emoji:'9️⃣'},
+  {num:10, thai:'สิบ', english:'Ten', emoji:'🔟'}
+];
+
+let app = {
+  idx: 0,
+  stars: 0,
+  soundOn: true,
+  audioCache: new Map(),
+  quiz: { questions: [], current: 0, score: 0, answered: false }
+};
+
+// Audio system
+function loadAudio(url) {
+  if (app.audioCache.has(url)) return Promise.resolve(app.audioCache.get(url));
+  return new Promise((resolve) => {
+    const audio = new Audio(url);
+    audio.addEventListener('canplaythrough', () => {
+      app.audioCache.set(url, audio);
+      resolve(audio);
+    }, {once: true});
+    audio.addEventListener('error', () => {
+      console.warn('Failed to load:', url);
+      resolve(null);
+    });
+    audio.load();
+  });
+}
+
+function playAudio(url, onComplete) {
+  if (!app.soundOn) { if (onComplete) setTimeout(onComplete, 100); return; }
+  const audio = app.audioCache.get(url);
+  if (!audio) { if (onComplete) setTimeout(onComplete, 100); return; }
+  audio.currentTime = 0;
+  const handleEnded = () => {
+    audio.removeEventListener('ended', handleEnded);
+    if (onComplete) setTimeout(onComplete, 200);
+  };
+  audio.addEventListener('ended', handleEnded);
+  audio.play().catch(() => {
+    audio.removeEventListener('ended', handleEnded);
+    if (onComplete) setTimeout(onComplete, 500);
+  });
+}
+
+function playSFX(type) {
+  if (!app.soundOn) return;
+  // Simple beep
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = type === 'correct' ? 800 : type === 'wrong' ? 200 : 400;
+  gain.gain.value = 0.1;
+  osc.start();
+  osc.stop(ctx.currentTime + 0.1);
+}
+
+function toggleSound() {
+  app.soundOn = !app.soundOn;
+  document.getElementById('sound-icon').textContent = app.soundOn ? '🔊' : '🔇';
+}
+
+// Navigation
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function goHome() {
+  window.location.href = 'index.html';
+}
+
+// Grid
+function showGrid() {
+  showScreen('screen-grid');
+  const grid = document.getElementById('numbers-grid');
+  grid.innerHTML = '';
+  
+  NUMBERS.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'number-card';
+    card.style.cssText = `background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);`;
+    card.innerHTML = `
+      <div style="font-size:clamp(56px,18vw,100px);font-weight:900;color:#fff;line-height:1;">${item.num}</div>
+      <div style="font-size:clamp(40px,12vw,70px);line-height:1;margin:8px 0;">${item.emoji}</div>
+      <div style="color:#fff;font-size:clamp(16px,4.5vw,24px);font-weight:700;">${item.thai}</div>
+      <div style="color:rgba(255,255,255,.8);font-size:clamp(13px,3.5vw,18px);font-weight:600;margin-top:4px;">${item.english}</div>
+    `;
+    card.addEventListener('click', () => {
+      playSFX('click');
+      startLearn(idx);
+    });
+    grid.appendChild(card);
+  });
+}
+
+// Learn mode
+function startLearn(startIdx) {
+  app.idx = startIdx;
+  showScreen('screen-learn');
+  renderLearn();
+}
+
+function renderLearn() {
+  const item = NUMBERS[app.idx];
+  document.getElementById('learn-counter').textContent = `ตัวที่ ${app.idx + 1} จาก ${NUMBERS.length}`;
+  document.getElementById('learn-number').textContent = item.num;
+  document.getElementById('learn-emoji').textContent = item.emoji;
+  document.getElementById('learn-thai').textContent = item.thai;
+  document.getElementById('learn-english').textContent = item.english;
+}
+
+function playNumber() {
+  const item = NUMBERS[app.idx];
+  playSFX('click');
+  // Play: number -> thai -> english
+  const numPath = `audio/numbers/${item.num}_num.mp3`;
+  const thaiPath = `audio/numbers/${item.num}_thai.mp3`;
+  const engPath = `audio/numbers/${item.num}_eng.mp3`;
+  
+  playAudio(numPath, () => {
+    setTimeout(() => {
+      playAudio(thaiPath, () => {
+        setTimeout(() => {
+          playAudio(engPath);
+        }, 150);
+      });
+    }, 150);
+  });
+}
+
+function nextNumber() {
+  if (app.idx < NUMBERS.length - 1) {
+    app.idx++;
+    playSFX('click');
+    renderLearn();
+    setTimeout(playNumber, 300);
+  }
+}
+
+function prevNumber() {
+  if (app.idx > 0) {
+    app.idx--;
+    playSFX('click');
+    renderLearn();
+    setTimeout(playNumber, 300);
+  }
+}
+
+function exitLearn() {
+  playSFX('click');
+  showGrid();
+}
+
+// Quiz
+function startQuiz() {
+  playSFX('click');
+  app.quiz = {
+    questions: generateQuestions(),
+    current: 0,
+    score: 0,
+    answered: false
+  };
+  showScreen('screen-quiz');
+  renderQuiz();
+}
+
+function generateQuestions() {
+  const questions = [];
+  const used = new Set();
+  
+  while (questions.length < 5) {
+    const idx = Math.floor(Math.random() * NUMBERS.length);
+    if (used.has(idx)) continue;
+    used.add(idx);
+    
+    const correct = NUMBERS[idx];
+    const choices = [correct];
+    
+    while (choices.length < 3) {
+      const other = NUMBERS[Math.floor(Math.random() * NUMBERS.length)];
+      if (!choices.includes(other)) choices.push(other);
+    }
+    
+    // Shuffle
+    for (let i = choices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [choices[i], choices[j]] = [choices[j], choices[i]];
+    }
+    
+    questions.push({ correct, choices });
+  }
+  
+  return questions;
+}
+
+function renderQuiz() {
+  const q = app.quiz.questions[app.quiz.current];
+  document.getElementById('quiz-counter').textContent = `ข้อที่ ${app.quiz.current + 1}/${app.quiz.questions.length}`;
+  document.getElementById('quiz-question').textContent = `${q.correct.num} = ?`;
+  document.getElementById('quiz-feedback').textContent = '';
+  
+  const choicesDiv = document.getElementById('quiz-choices');
+  choicesDiv.innerHTML = '';
+  
+  q.choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.style.cssText = `background:rgba(255,255,255,.9);border:none;border-radius:18px;
+      padding:20px;display:flex;flex-direction:column;align-items:center;gap:8px;`;
+    btn.innerHTML = `
+      <div style="font-size:clamp(32px,10vw,48px);">${choice.emoji}</div>
+      <div style="color:#333;font-size:clamp(16px,4.5vw,22px);font-weight:800;">${choice.thai}</div>
+      <div style="color:#666;font-size:clamp(13px,3.5vw,17px);font-weight:600;">${choice.english}</div>
+    `;
+    btn.addEventListener('click', () => checkAnswer(choice === q.correct, btn));
+    choicesDiv.appendChild(btn);
+  });
+  
+  app.quiz.answered = false;
+}
+
+function checkAnswer(isCorrect, btn) {
+  if (app.quiz.answered) return;
+  app.quiz.answered = true;
+  
+  const feedback = document.getElementById('quiz-feedback');
+  
+  if (isCorrect) {
+    playSFX('correct');
+    app.quiz.score++;
+    app.stars += 2;
+    btn.style.background = 'rgba(34,197,94,.9)';
+    feedback.textContent = '✅ ถูกต้อง!';
+    feedback.style.color = '#a7f3d0';
+  } else {
+    playSFX('wrong');
+    btn.style.background = 'rgba(239,68,68,.9)';
+    feedback.textContent = '❌ ลองใหม่นะ!';
+    feedback.style.color = '#fecaca';
+  }
+  
+  updateStars();
+  
+  setTimeout(() => {
+    app.quiz.current++;
+    if (app.quiz.current < app.quiz.questions.length) {
+      renderQuiz();
+    } else {
+      showResult();
+    }
+  }, 1500);
+}
+
+function showResult() {
+  const score = app.quiz.score;
+  const total = app.quiz.questions.length;
+  const percent = Math.round((score/total)*100);
+  
+  document.getElementById('result-score').textContent = `ตอบถูก ${score} จาก ${total} ข้อ (${percent}%)`;
+  
+  let stars, msg;
+  if (percent >= 80) { stars = '⭐⭐⭐'; msg = 'ยอดเยี่ยม! เก่งมาก! 🌟'; }
+  else if (percent >= 60) { stars = '⭐⭐'; msg = 'เก่งมากเลย! 💪'; }
+  else { stars = '⭐'; msg = 'ไม่เป็นไร ลองอีกครั้งนะ! 🤗'; }
+  
+  document.getElementById('result-stars').textContent = stars;
+  document.getElementById('result-message').textContent = msg;
+  
+  showScreen('screen-result');
+}
+
+function exitQuiz() {
+  playSFX('click');
+  showGrid();
+}
+
+function updateStars() {
+  document.getElementById('hud-stars').textContent = app.stars;
+}
+
+// Preload audio
+async function preloadAudio() {
+  console.log('🎵 Preloading number audio...');
+  const promises = [];
+  
+  for (const item of NUMBERS) {
+    promises.push(loadAudio(`audio/numbers/${item.num}_num.mp3`));
+    promises.push(loadAudio(`audio/numbers/${item.num}_thai.mp3`));
+    promises.push(loadAudio(`audio/numbers/${item.num}_eng.mp3`));
+  }
+  
+  await Promise.all(promises);
+  console.log('✅ Audio preloaded');
+}
+
+// Init
+(function() {
+  updateStars();
+  showGrid();
+  preloadAudio();
+})();
+</script>
+</body>
+</html>

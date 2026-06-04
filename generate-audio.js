@@ -92,6 +92,19 @@ const ENG = [
   {letter:'Z', word:'Zebra',    thaiWord:'ม้าลาย'},
 ];
 
+const NUMBERS = [
+  {num:1,  thai:'หนึ่ง', english:'One'},
+  {num:2,  thai:'สอง',   english:'Two'},
+  {num:3,  thai:'สาม',   english:'Three'},
+  {num:4,  thai:'สี่',    english:'Four'},
+  {num:5,  thai:'ห้า',    english:'Five'},
+  {num:6,  thai:'หก',    english:'Six'},
+  {num:7,  thai:'เจ็ด',   english:'Seven'},
+  {num:8,  thai:'แปด',   english:'Eight'},
+  {num:9,  thai:'เก้า',   english:'Nine'},
+  {num:10, thai:'สิบ',   english:'Ten'},
+];
+
 async function synthesize(text, lang, filename) {
   const request = {
     input: { text },
@@ -117,6 +130,7 @@ async function main() {
   await fs.mkdir('audio', { recursive: true });
   await fs.mkdir('audio/thai', { recursive: true });
   await fs.mkdir('audio/english', { recursive: true });
+  await fs.mkdir('audio/numbers', { recursive: true });
 
   console.log('🎙️ Generating Thai audio files...\n');
   
@@ -142,7 +156,19 @@ async function main() {
     await synthesize(item.thaiWord, 'th', `audio/english/${code}_thai.mp3`);
   }
 
-  console.log('\n✨ Done! Total files:', (THAI.length * 2) + (ENG.length * 3));
+  console.log('\n🎙️ Generating Numbers audio files...\n');
+
+  // Generate Numbers audio (num + thai + english แยกกัน)
+  for (const item of NUMBERS) {
+    // ไฟล์ที่ 1: ตัวเลข (เช่น "1")
+    await synthesize(item.num.toString(), 'en', `audio/numbers/${item.num}_num.mp3`);
+    // ไฟล์ที่ 2: คำไทย (เช่น "หนึ่ง")
+    await synthesize(item.thai, 'th', `audio/numbers/${item.num}_thai.mp3`);
+    // ไฟล์ที่ 3: คำอังกฤษ (เช่น "One")
+    await synthesize(item.english, 'en', `audio/numbers/${item.num}_eng.mp3`);
+  }
+
+  console.log('\n✨ Done! Total files:', (THAI.length * 2) + (ENG.length * 3) + (NUMBERS.length * 3));
   console.log('📁 Audio files saved in: audio/');
 }
 

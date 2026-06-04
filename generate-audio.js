@@ -26,7 +26,7 @@ const THAI = [
   {letter:'ง', name:'งอ', word:'งู'},
   {letter:'จ', name:'จอ', word:'จาน'},
   {letter:'ฉ', name:'ฉอ', word:'ฉิ่ง'},
-  {letter:'ช', name:'ชอ', word:'ช้าง, ช้าง'},
+  {letter:'ช', name:'ชอ', word:'ช้าง'},
   {letter:'ซ', name:'ซอ', word:'โซ่'},
   {letter:'ฌ', name:'ชอ', word:'เฌอ'},
   {letter:'ญ', name:'ยอ', word:'หญิง'},

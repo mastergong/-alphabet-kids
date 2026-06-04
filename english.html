@@ -1125,6 +1125,9 @@ function renderQuizQ() {
   const q     = app.quiz.questions[app.quiz.idx];
   const total = app.quiz.questions.length;
   const cur   = app.quiz.idx + 1;
+  
+  console.log('renderQuizQ - Question', cur, 'of', total, '- Letter:', q.item.letter);
+  app.quiz.answered = false; // รีเซ็ตก่อนเพื่อให้ปุ่มใหม่คลิกได้
 
   document.getElementById('quiz-prog-text').textContent = `ข้อ ${cur} จาก ${total}`;
   document.getElementById('quiz-prog-bar').style.width  = `${(cur/total)*100}%`;
@@ -1155,13 +1158,16 @@ function renderQuizQ() {
                   margin-top:3px;text-align:center;">${choice.word}</div>
     `;
     btn.addEventListener('click', () => {
-      if (app.quiz.answered) return;
+      if (app.quiz.answered) {
+        console.log('Click blocked - already answered');
+        return;
+      }
+      console.log('Answer clicked:', choice.letter, 'Correct:', choice === q.item);
       resumeAC();
       handleAnswer(choice === q.item, btn, ct, q.item);
     });
     ct.appendChild(btn);
   });
-  app.quiz.answered = false;
 }
 
 function speakQuizLetter() {
@@ -1202,8 +1208,15 @@ function handleAnswer(correct, btn, container, correctItem) {
 }
 
 function advanceQuiz() {
-  if (app.quiz.idx < app.quiz.questions.length - 1) { app.quiz.idx++; renderQuizQ(); }
-  else showResult();
+  console.log('advanceQuiz called, idx:', app.quiz.idx, 'total:', app.quiz.questions.length);
+  if (app.quiz.idx < app.quiz.questions.length - 1) { 
+    app.quiz.idx++; 
+    console.log('Moving to next question, new idx:', app.quiz.idx);
+    renderQuizQ(); 
+  } else {
+    console.log('Quiz finished, showing result');
+    showResult();
+  }
 }
 
 function exitQuiz() { playSFX('click'); showScreen('screen-grid'); }

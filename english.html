@@ -944,6 +944,7 @@ function startMode(mode) {
    GRID
 ────────────────────────────────────────────── */
 function buildGrid() {
+  console.log('buildGrid called - mode:', app.mode, 'data length:', app.data?.length);
   const isEn = app.mode==='english', isBoth = app.mode==='both';
   document.getElementById('screen-grid').style.background =
     isEn ? 'linear-gradient(145deg,#4c6ef5,#7950f2)'
@@ -957,6 +958,7 @@ function buildGrid() {
     : `${app.data.length} ตัวอักษร • แตะเพื่อเรียนทีละตัว • ✅ = เรียนแล้ว`;
 
   const ct = document.getElementById('letters-grid');
+  console.log('Grid container:', ct);
   ct.innerHTML = '';
   app.data.forEach((item, i) => {
     const col  = CARD_COLORS[i % CARD_COLORS.length];

@@ -124,7 +124,7 @@ body {
                 padding:8px 14px;pointer-events:auto;display:flex;align-items:center;gap:5px;
                 border:1.5px solid rgba(255,255,255,.3);text-decoration:none;transition:transform .2s;">
       <span style="font-size:18px;">🏠</span>
-      <span style="color:#fff;font-size:13px;font-weight:700;">หน้าแรก</span>
+      <!-- <span style="color:#fff;font-size:13px;font-weight:700;">หน้าแรก</span> -->
     </a>
 
     <!-- Stars -->
@@ -496,11 +496,7 @@ const CARD_COLORS = [
   '#20bf6b','#e17055','#74b9ff','#fdcb6e','#00cec9',
 ];
 
-const LEARN_BG = {
-  thai:    'linear-gradient(145deg,#ff6348 0%,#c0392b 100%)',
-  english: 'linear-gradient(145deg,#4c6ef5 0%,#5f27cd 100%)',
-  both:    'linear-gradient(145deg,#20bf6b 0%,#01a3a4 100%)',
-};
+const LEARN_BG = 'linear-gradient(145deg,#ff6348 0%,#c0392b 100%)';
 
 /* ──────────────────────────────────────────────
    STATE
@@ -899,11 +895,6 @@ async function preloadAudio() {
   console.log('✅ Audio preloaded:', audioCache.size, 'files');
 }
 
-function getLang(letter) {
-  if (app.mode === 'english') return 'en-US';
-  if (app.mode === 'thai')    return 'th-TH';
-  return /^[A-Za-z]$/.test(letter) ? 'en-US' : 'th-TH';
-}
 
 /* ──────────────────────────────────────────────
    SCREEN MANAGEMENT
@@ -930,7 +921,7 @@ function startMode(mode) {
   resumeAC();
   playSFX('click');
   app.mode = mode;
-  app.data = mode === 'thai' ? THAI : mode === 'english' ? ENG : [...THAI,...ENG];
+  app.data = THAI;
   app.learnedSet.clear();
   buildGrid();
   showScreen('screen-grid');
@@ -943,16 +934,9 @@ function startMode(mode) {
    GRID
 ────────────────────────────────────────────── */
 function buildGrid() {
-  const isEn = app.mode==='english', isBoth = app.mode==='both';
-  document.getElementById('screen-grid').style.background =
-    isEn ? 'linear-gradient(145deg,#4c6ef5,#7950f2)'
-    : isBoth ? 'linear-gradient(145deg,#20bf6b,#01a3a4)'
-    : 'linear-gradient(145deg,#ff6348,#ff4757)';
-
-  document.getElementById('grid-title').textContent =
-    isEn ? '🔤 A – Z English' : isBoth ? '🌟 ก–ฮ & A–Z' : '🇹🇭 ก – ฮ';
-  document.getElementById('grid-sub').textContent =
-    `${app.data.length} ตัวอักษร • แตะเพื่อเรียนทีละตัว • ✅ = เรียนแล้ว`;
+  document.getElementById('screen-grid').style.background = 'linear-gradient(145deg,#ff6348,#ff4757)';
+  document.getElementById('grid-title').textContent = '🇹🇭 ก – ฮ';
+  document.getElementById('grid-sub').textContent = `${app.data.length} ตัวอักษร • แตะเพื่อเรียนทีละตัว • ✅ = เรียนแล้ว`;
 
   const ct = document.getElementById('letters-grid');
   ct.innerHTML = '';
@@ -982,8 +966,7 @@ function startLearnMode(startIdx = 0) {
   stopAutoPlay(); // หยุด auto play ก่อนเสมอเมื่อเริ่ม learn mode ใหม่
   playSFX('click');
   app.idx = startIdx;
-  document.getElementById('screen-learn').style.background =
-    LEARN_BG[app.mode] || LEARN_BG.thai;
+  document.getElementById('screen-learn').style.background = LEARN_BG;
   renderLearnCard();
   showScreen('screen-learn');
   setupSwipe();
@@ -1227,8 +1210,7 @@ let currentLetter = '';
 function startWriting(startIdx = 0) {
   stopAllAudio(); playSFX('click');
   
-  // เลือก data ตามโหมด
-  app.data = app.mode === 'thai' ? THAI : ENG;
+  app.data = THAI;
   app.idx = startIdx;
   
   showScreen('screen-writing');

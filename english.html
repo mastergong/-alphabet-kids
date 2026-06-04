@@ -125,7 +125,7 @@ body {
                 padding:8px 14px;pointer-events:auto;display:flex;align-items:center;gap:5px;
                 border:1.5px solid rgba(255,255,255,.3);text-decoration:none;transition:transform .2s;">
       <span style="font-size:18px;">🏠</span>
-      <span style="color:#fff;font-size:13px;font-weight:700;">Home</span>
+      <!-- <span style="color:#fff;font-size:13px;font-weight:700;">Home</span> -->
     </a>
 
     <!-- Stars -->
@@ -412,54 +412,6 @@ body {
 /* ──────────────────────────────────────────────
    DATA
 ────────────────────────────────────────────── */
-const THAI = [
-  // letter | name = ชื่อพยัญชนะ (TTS ขั้น1) | word = คำประกอบ (TTS ขั้น2)
-  {letter:'ก',name:'กอ', word:'ไก่',      emoji:'🐔', reading:'กอ ไก่'},
-  {letter:'ข',name:'ขอ', word:'ไข่',      emoji:'🥚', reading:'ขอ ไข่'},
-  {letter:'ฃ',name:'ขอ', word:'ขวด',      emoji:'🍶', reading:'ขอ ขวด'},
-  {letter:'ค',name:'คอ', word:'ควาย',     emoji:'🐃', reading:'คอ ควาย'},
-  {letter:'ฅ',name:'คอ', word:'คน',       emoji:'🧑', reading:'คอ คน'},
-  {letter:'ฆ',name:'คอ', word:'ระฆัง',    emoji:'🔔', reading:'คอ ระฆัง'},
-  {letter:'ง',name:'งอ', word:'งู',       emoji:'🐍', reading:'งอ งู'},
-  {letter:'จ',name:'จอ', word:'จาน',      emoji:'🍽️',reading:'จอ จาน'},
-  {letter:'ฉ',name:'ฉอ', word:'ฉิ่ง',     emoji:'🎶', reading:'ฉอ ฉิ่ง'},
-  {letter:'ช',name:'ชอ', word:'ช้าง',     emoji:'🐘', reading:'ชอ ช้าง'},
-  {letter:'ซ',name:'ซอ', word:'โซ่',      emoji:'⛓️',reading:'ซอ โซ่'},
-  {letter:'ฌ',name:'ชอ', word:'เฌอ',      emoji:'🌳', reading:'ชอ เฌอ'},
-  {letter:'ญ',name:'ยอ', word:'หญิง',     emoji:'👩', reading:'ยอ หญิง'},
-  {letter:'ฎ',name:'ดอ', word:'ชฎา',      emoji:'👑', reading:'ดอ ชฎา'},
-  {letter:'ฏ',name:'ตอ', word:'ปฏัก',     emoji:'🗡️',reading:'ตอ ปฏัก'},
-  {letter:'ฐ',name:'ถอ', word:'ฐาน',      emoji:'🏛️',reading:'ถอ ฐาน'},
-  {letter:'ฑ',name:'ทอ', word:'มณโฑ',     emoji:'👸', reading:'ทอ มณโฑ'},
-  {letter:'ฒ',name:'ทอ', word:'ผู้เฒ่า',  emoji:'👴', reading:'ทอ ผู้เฒ่า'},
-  {letter:'ณ',name:'นอ', word:'เณร',      emoji:'🙏', reading:'นอ เณร'},
-  {letter:'ด',name:'ดอ', word:'เด็ก',     emoji:'👦', reading:'ดอ เด็ก'},
-  {letter:'ต',name:'ตอ', word:'เต่า',     emoji:'🐢', reading:'ตอ เต่า'},
-  {letter:'ถ',name:'ถอ', word:'ถุง',      emoji:'👜', reading:'ถอ ถุง'},
-  {letter:'ท',name:'ทอ', word:'ทหาร',     emoji:'💂', reading:'ทอ ทหาร'},
-  {letter:'ธ',name:'ทอ', word:'ธง',       emoji:'🚩', reading:'ทอ ธง'},
-  {letter:'น',name:'นอ', word:'หนู',      emoji:'🐭', reading:'นอ หนู'},
-  {letter:'บ',name:'บอ', word:'ใบไม้',    emoji:'🍃', reading:'บอ ใบไม้'},
-  {letter:'ป',name:'ปอ', word:'ปลา',      emoji:'🐟', reading:'ปอ ปลา'},
-  {letter:'ผ',name:'ผอ', word:'ผึ้ง',     emoji:'🐝', reading:'ผอ ผึ้ง'},
-  {letter:'ฝ',name:'ฝอ', word:'ฝา',       emoji:'🫙', reading:'ฝอ ฝา'},
-  {letter:'พ',name:'พอ', word:'พาน',      emoji:'🥣', reading:'พอ พาน'},
-  {letter:'ฟ',name:'ฟอ', word:'ฟัน',      emoji:'🦷', reading:'ฟอ ฟัน'},
-  {letter:'ภ',name:'พอ', word:'สำเภา',    emoji:'⛵', reading:'พอ สำเภา'},
-  {letter:'ม',name:'มอ', word:'ม้า',      emoji:'🐴', reading:'มอ ม้า'},
-  {letter:'ย',name:'ยอ', word:'ยักษ์',    emoji:'👹', reading:'ยอ ยักษ์'},
-  {letter:'ร',name:'รอ', word:'เรือ',     emoji:'🚢', reading:'รอ เรือ'},
-  {letter:'ล',name:'ลอ', word:'ลิง',      emoji:'🐒', reading:'ลอ ลิง'},
-  {letter:'ว',name:'วอ', word:'แหวน',     emoji:'💍', reading:'วอ แหวน'},
-  {letter:'ศ',name:'สอ', word:'ศาลา',     emoji:'🏯', reading:'สอ ศาลา'},
-  {letter:'ษ',name:'สอ', word:'ฤาษี',     emoji:'🧙', reading:'สอ ฤาษี'},
-  {letter:'ส',name:'สอ', word:'เสือ',     emoji:'🐯', reading:'สอ เสือ'},
-  {letter:'ห',name:'หอ', word:'หีบ',      emoji:'📦', reading:'หอ หีบ'},
-  {letter:'ฬ',name:'ลอ', word:'จุฬา',     emoji:'🪁', reading:'ลอ จุฬา'},
-  {letter:'อ',name:'ออ', word:'อ่าง',     emoji:'🛁', reading:'ออ อ่าง'},
-  {letter:'ฮ',name:'ฮอ', word:'นกฮูก',   emoji:'🦉', reading:'ฮอ นกฮูก'},
-];
-
 const ENG = [
   {letter:'A',word:'Ant',      thaiWord:'มด',          emoji:'🐜', reading:'A แอ็นท มด'},
   {letter:'B',word:'Bird',     thaiWord:'นก',          emoji:'🐦', reading:'B เบิร์ด นก'},
@@ -496,17 +448,13 @@ const CARD_COLORS = [
   '#20bf6b','#e17055','#74b9ff','#fdcb6e','#00cec9',
 ];
 
-const LEARN_BG = {
-  thai:    'linear-gradient(145deg,#ff6348 0%,#c0392b 100%)',
-  english: 'linear-gradient(145deg,#4c6ef5 0%,#5f27cd 100%)',
-  both:    'linear-gradient(145deg,#20bf6b 0%,#01a3a4 100%)',
-};
+const LEARN_BG = 'linear-gradient(145deg,#4c6ef5 0%,#5f27cd 100%)';
 
 /* ──────────────────────────────────────────────
    STATE
 ────────────────────────────────────────────── */
 const app = {
-  mode:'thai', data:THAI, idx:0,
+  mode:'english', data:ENG, idx:0,
   stars:0, learnedSet: new Set(),
   autoPlay:false, apTimer:null,
   quiz:{ questions:[], idx:0, score:0, answered:false },
@@ -899,11 +847,6 @@ async function preloadAudio() {
   console.log('✅ Audio preloaded:', audioCache.size, 'files');
 }
 
-function getLang(letter) {
-  if (app.mode === 'english') return 'en-US';
-  if (app.mode === 'thai')    return 'th-TH';
-  return /^[A-Za-z]$/.test(letter) ? 'en-US' : 'th-TH';
-}
 
 /* ──────────────────────────────────────────────
    SCREEN MANAGEMENT
@@ -930,7 +873,7 @@ function startMode(mode) {
   resumeAC();
   playSFX('click');
   app.mode = mode;
-  app.data = mode === 'thai' ? THAI : mode === 'english' ? ENG : [...THAI,...ENG];
+  app.data = ENG;
   app.learnedSet.clear();
   buildGrid();
   showScreen('screen-grid');
@@ -943,17 +886,9 @@ function startMode(mode) {
    GRID
 ────────────────────────────────────────────── */
 function buildGrid() {
-  const isEn = app.mode==='english', isBoth = app.mode==='both';
-  document.getElementById('screen-grid').style.background =
-    isEn ? 'linear-gradient(145deg,#4c6ef5,#7950f2)'
-    : isBoth ? 'linear-gradient(145deg,#20bf6b,#01a3a4)'
-    : 'linear-gradient(145deg,#ff6348,#ff4757)';
-
-  document.getElementById('grid-title').textContent =
-    isEn ? '🔤 A – Z English' : isBoth ? '🌟 ก–ฮ & A–Z' : '🇹🇭 ก – ฮ';
-  document.getElementById('grid-sub').textContent =
-    isEn ? `${app.data.length} letters • Tap to learn one by one • ✅ = learned`
-    : `${app.data.length} ตัวอักษร • แตะเพื่อเรียนทีละตัว • ✅ = เรียนแล้ว`;
+  document.getElementById('screen-grid').style.background = 'linear-gradient(145deg,#4c6ef5,#7950f2)';
+  document.getElementById('grid-title').textContent = '🔤 A – Z English';
+  document.getElementById('grid-sub').textContent = `${app.data.length} letters • Tap to learn one by one • ✅ = learned`;
 
   const ct = document.getElementById('letters-grid');
   ct.innerHTML = '';
@@ -983,8 +918,7 @@ function startLearnMode(startIdx = 0) {
   stopAutoPlay(); // หยุด auto play ก่อนเสมอเมื่อเริ่ม learn mode ใหม่
   playSFX('click');
   app.idx = startIdx;
-  document.getElementById('screen-learn').style.background =
-    LEARN_BG[app.mode] || LEARN_BG.thai;
+  document.getElementById('screen-learn').style.background = LEARN_BG;
   renderLearnCard();
   showScreen('screen-learn');
   setupSwipe();
@@ -1228,8 +1162,7 @@ let currentLetter = '';
 function startWriting(startIdx = 0) {
   stopAllAudio(); playSFX('click');
   
-  // เลือก data ตามโหมด
-  app.data = app.mode === 'thai' ? THAI : ENG;
+  app.data = ENG;
   app.idx = startIdx;
   
   showScreen('screen-writing');
